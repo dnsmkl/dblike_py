@@ -25,6 +25,7 @@ TableDef = namedtuple("TableDef", "name pk")
 
 
 class DBSchema(object):
+    'Contains dict of DBTable'
     def __init__(self, schema_def):
         self._tables = dict()
         assert isinstance(schema_def, list)
@@ -36,6 +37,7 @@ class DBSchema(object):
 
 
 class DBTable(object):
+    'Contains dict of DBRow'
     def __init__(self, pk):
         self._pk = pk
         self._rows = dict()
@@ -49,6 +51,7 @@ class DBTable(object):
 
 
 class DBRow(object):
+    'Contains dict of DBValue'
     def __init__(self, pk, value_dict):
         self._pk = pk
         self._dbvalue_dict = dict()
@@ -64,6 +67,7 @@ class DBRow(object):
 
 
 class DBValue(object):
+    'Contains value'
     def __init__(self, value):
         self._value = value
 
