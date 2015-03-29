@@ -1,3 +1,21 @@
+'''\
+Storage system that mimics some aspects of DB.
+
+This module provides classes, that looseley correspond to database concepts:
+(currently only TODO list)
+- DBSchema
+- DBTable
+- DBRow
+- DBValue
+
+Situation, when it can be useful:
+- Needed data is in DB dump (e.g. XML file).
+- There is no possibility to load it to actual DB
+- It is more convenient/quicker, to parse the DB dump,
+    load data into DBLIKE system and use its API.
+'''
+
+
 from __future__ import print_function
 import unittest
 
