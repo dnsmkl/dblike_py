@@ -21,21 +21,28 @@ import unittest
 
 
 class DBTable(object):
-    def __init__(self):
+    def __init__(self, pk):
+        self._pk = pk
         self._rows = dict()
 
-    def __setitem__(self, id, val):
-        self._rows[id] = val
+    def save_row(self, value_dict):
+        new_row = DBRow(self._pk, value_dict)
+        self._rows[new_row.key] = new_row
 
     def __getitem__(self, id):
         return self._rows[id]
 
 
 class DBRow(object):
-    def __init__(self, value_dict):
+    def __init__(self, pk, value_dict):
+        self._pk = pk
         self._value_dict = dict()
         for i, val in value_dict.iteritems():
             self._value_dict[i] = DBValue(val)
+
+    @property
+    def key(self):
+        return self._value_dict[self._pk].value
 
     def __getitem__(self, id):
         return self._value_dict[id]
@@ -52,14 +59,14 @@ class DBValue(object):
 
 class DBTableTestCase(unittest.TestCase):
     def test(self):
-        x = DBTable()
-        x[1] = 'ThisIsValue'
-        self.assertEquals(x[1], 'ThisIsValue')
+        x = DBTable('row_id')
+        x.save_row({'row_id':1, 'some_value':'ThisIsValue'})
+        self.assertEquals(x[1]['some_value'].value, 'ThisIsValue')
 
 
 class DBRowTestCase(unittest.TestCase):
     def test(self):
-        x = DBRow({'a':'this is a', 'b':'this is not a'})
+        x = DBRow('a', {'a':'this is a', 'b':'this is not a'})
         self.assertEquals(x['a'].value, 'this is a')
         self.assertEquals(x['b'].value, 'this is not a')
 
