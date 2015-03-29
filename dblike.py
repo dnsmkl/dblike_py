@@ -62,8 +62,9 @@ class DBRow(object):
     def key(self):
         return self._dbvalue_dict[self._pk].value
 
-    def __getitem__(self, id):
-        return self._dbvalue_dict[id]
+    def __getattr__(self, column_name):
+        return self._dbvalue_dict[column_name]
+
 
 
 class DBValue(object):
@@ -80,21 +81,21 @@ class DBSchemaTestCase(unittest.TestCase):
     def test(self):
         s = DBSchema(schema_def=[TableDef('table1','column1')])
         s.table1.save_row({'column1':1, 'some_value':'ThisIsValue'})
-        self.assertEquals(s.table1[1]['some_value'].value, 'ThisIsValue')
+        self.assertEquals(s.table1[1].some_value.value, 'ThisIsValue')
 
 
 class DBTableTestCase(unittest.TestCase):
     def test(self):
         x = DBTable('row_id')
         x.save_row({'row_id':1, 'some_value':'ThisIsValue'})
-        self.assertEquals(x[1]['some_value'].value, 'ThisIsValue')
+        self.assertEquals(x[1].some_value.value, 'ThisIsValue')
 
 
 class DBRowTestCase(unittest.TestCase):
     def test(self):
         x = DBRow('a', {'a':'this is a', 'b':'this is not a'})
-        self.assertEquals(x['a'].value, 'this is a')
-        self.assertEquals(x['b'].value, 'this is not a')
+        self.assertEquals(x.a.value, 'this is a')
+        self.assertEquals(x.b.value, 'this is not a')
 
 
 class DBValueTestCase(unittest.TestCase):
