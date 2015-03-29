@@ -16,7 +16,6 @@ Situation, when it can be useful:
 '''
 
 
-from __future__ import print_function
 from collections import namedtuple
 import unittest
 
