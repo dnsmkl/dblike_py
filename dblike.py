@@ -36,16 +36,16 @@ class DBTable(object):
 class DBRow(object):
     def __init__(self, pk, value_dict):
         self._pk = pk
-        self._value_dict = dict()
+        self._dbvalue_dict = dict()
         for i, val in value_dict.iteritems():
-            self._value_dict[i] = DBValue(val)
+            self._dbvalue_dict[i] = DBValue(val)
 
     @property
     def key(self):
-        return self._value_dict[self._pk].value
+        return self._dbvalue_dict[self._pk].value
 
     def __getitem__(self, id):
-        return self._value_dict[id]
+        return self._dbvalue_dict[id]
 
 
 class DBValue(object):
