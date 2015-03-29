@@ -2,7 +2,6 @@
 Storage system that mimics some aspects of DB.
 
 This module provides classes, that looseley correspond to database concepts:
-(currently only TODO list)
 - DBSchema
 - DBTable
 - DBRow
