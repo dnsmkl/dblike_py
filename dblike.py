@@ -31,7 +31,7 @@ class DBTable(object):
         return self._rows[id]
 
 
-class DBRow(object):
+class DBValue(object):
     def __init__(self, value):
         self._value = value
 
@@ -47,9 +47,9 @@ class DBTableTestCase(unittest.TestCase):
         self.assertEquals(x[1], 'ThisIsValue')
 
 
-class DBRowTestCase(unittest.TestCase):
+class DBValueTestCase(unittest.TestCase):
     def test(self):
-        x = DBRow('ThisIsValue')
+        x = DBValue('ThisIsValue')
         self.assertEquals(x.value, 'ThisIsValue')
 
 
