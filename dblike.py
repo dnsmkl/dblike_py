@@ -33,11 +33,12 @@ class DBTable(object):
 
 class DBRow(object):
     def __init__(self, value_dict):
-        self._value_dict = value_dict
+        self._value_dict = dict()
+        for i, val in value_dict.iteritems():
+            self._value_dict[i] = DBValue(val)
 
     def __getitem__(self, id):
         return self._value_dict[id]
-
 
 
 class DBValue(object):
@@ -59,8 +60,8 @@ class DBTableTestCase(unittest.TestCase):
 class DBRowTestCase(unittest.TestCase):
     def test(self):
         x = DBRow({'a':'this is a', 'b':'this is not a'})
-        self.assertEquals(x['a'], 'this is a')
-        self.assertEquals(x['b'], 'this is not a')
+        self.assertEquals(x['a'].value, 'this is a')
+        self.assertEquals(x['b'].value, 'this is not a')
 
 
 class DBValueTestCase(unittest.TestCase):
