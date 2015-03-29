@@ -17,7 +17,22 @@ Situation, when it can be useful:
 
 
 from __future__ import print_function
+from collections import namedtuple
 import unittest
+
+
+TableDef = namedtuple("TableDef", "name pk")
+
+
+class DBSchema(object):
+    def __init__(self, schema_def):
+        self._tables = dict()
+        assert isinstance(schema_def, list)
+        for name, pk in schema_def:
+            self._tables[name] = DBTable(pk)
+
+    def __getattr__(self, table_name):
+        return self._tables[table_name]
 
 
 class DBTable(object):
@@ -55,6 +70,13 @@ class DBValue(object):
     @property
     def value(self):
         return self._value
+
+
+class DBSchemaTestCase(unittest.TestCase):
+    def test(self):
+        s = DBSchema(schema_def=[TableDef('table1','column1')])
+        s.table1.save_row({'column1':1, 'some_value':'ThisIsValue'})
+        self.assertEquals(s.table1[1]['some_value'].value, 'ThisIsValue')
 
 
 class DBTableTestCase(unittest.TestCase):
