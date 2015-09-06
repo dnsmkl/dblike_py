@@ -12,6 +12,9 @@ Situation, when it can be useful:
 - There is no possibility to load it to actual DB
 - It is more convenient/quicker, to parse the DB dump,
     load data into DBLIKE system and use its API.
+
+It will not be useful if real database is needed.
+(no data consistency checks, no data types, no transactions)
 '''
 
 
