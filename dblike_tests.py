@@ -3,27 +3,27 @@ from dblike import TableDef, DBSchema, DBTable, DBRow, DBValue
 
 
 class DBLikeTestCase(unittest.TestCase):
-    def test_column_deref(self):
+    '''\
+    Integration tests of DBLike module
+    (tests that are not isolated to separate classes)
+    '''
+    def setUp(self):
+        '''Define simple schema for query testing purposes'''
         s = DBSchema(schema_def=[
-                    TableDef('items','item_id'),
-                    TableDef('cmp','cmp_id') # cmp = comparison
-                ])
-        s.items.save_row({'item_id':11, 'name':'chair'})
-        s.items.save_row({'item_id':22, 'name':'house'})
-        s.cmp.save_row({'cmp_id':1, 'smaller_item_id':11, 'larger_item_id':22})
-
-        self.assertEquals(s.cmp[1].smaller_item_id.deref_in('items').name.value, 'chair')
-        self.assertEquals(s.cmp[1].larger_item_id.deref_in('items').name.value, 'house')
-
-    def test_find_refs(self):
-        s = DBSchema(schema_def=[
-                    TableDef('items','item_id'),
-                    TableDef('owners','owner_id') # cmp = comparison
+                    TableDef(name='items', pk='item_id'),
+                    TableDef(name='owners', pk='owner_id')
                 ])
         s.owners.save_row({'owner_id':1, 'owner_name':'Tom'})
         s.items.save_row({'item_id':1, 'name':'chair', 'owner_id':1})
         s.items.save_row({'item_id':2, 'name':'house', 'owner_id':1})
+        self.s = s
 
+    def test_column_deref(self):
+        s = self.s
+        self.assertEquals(s.items[1].owner_id.deref_in('owners').owner_name.value, 'Tom')
+
+    def test_find_refs(self):
+        s = self.s
         owned_items = s.owners[1].find_refs('items', 'owner_id')
         self.assertEquals(len(owned_items), 2)
         self.assertEquals(owned_items[0].name.value, 'chair')

@@ -65,6 +65,7 @@ class DBRow(object):
         return self._dbvalue_dict[self._pk].value
 
     def __getattr__(self, column_name):
+        assert column_name in self._dbvalue_dict, str(self._dbvalue_dict)
         return self._dbvalue_dict[column_name]
 
     def find_refs(self, table_name, column_name):
