@@ -15,6 +15,20 @@ class DBLikeTestCase(unittest.TestCase):
         self.assertEquals(s.cmp[1].smaller_item_id.deref_in('items').name.value, 'chair')
         self.assertEquals(s.cmp[1].larger_item_id.deref_in('items').name.value, 'house')
 
+    def test_find_refs(self):
+        s = DBSchema(schema_def=[
+                    TableDef('items','item_id'),
+                    TableDef('owners','owner_id') # cmp = comparison
+                ])
+        s.owners.save_row({'owner_id':1, 'owner_name':'Tom'})
+        s.items.save_row({'item_id':1, 'name':'chair', 'owner_id':1})
+        s.items.save_row({'item_id':2, 'name':'house', 'owner_id':1})
+
+        owned_items = s.owners[1].find_refs('items', 'owner_id')
+        self.assertEquals(len(owned_items), 2)
+        self.assertEquals(owned_items[0].name.value, 'chair')
+        self.assertEquals(owned_items[1].name.value, 'house')
+
 
 class DBSchemaTestCase(unittest.TestCase):
     def test_simple_set_get(self):

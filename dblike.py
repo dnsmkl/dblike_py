@@ -67,6 +67,13 @@ class DBRow(object):
     def __getattr__(self, column_name):
         return self._dbvalue_dict[column_name]
 
+    def find_refs(self, table_name, column_name):
+        '''Find rows in other table, that refer to this row'''
+        table = getattr(self._schema, table_name)
+        return [r for k, r in table._rows.items()
+            if getattr(r, column_name).value == self.key]
+
+
 
 class DBValue(object):
     'Contains value'
