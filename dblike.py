@@ -75,7 +75,6 @@ class DBRow(object):
             if getattr(r, column_name).value == self.key]
 
 
-
 class DBValue(object):
     'Contains value'
     def __init__(self, parent_schema, value):
