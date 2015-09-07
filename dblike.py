@@ -39,7 +39,7 @@ class DBSchema(object):
 class DBTable(object):
     '''Contains dict of DBRow'''
     def __init__(self, parent_schema, pk):
-        self._schema = parent_schema
+        self._schema = parent_schema # needed for find_refs() and deref()
         self._pk = pk
         self._rows = dict()
 
@@ -58,7 +58,7 @@ class DBTable(object):
 class DBRow(object):
     '''Contains dict of DBValue'''
     def __init__(self, parent_schema, pk, value_dict):
-        self._schema = parent_schema
+        self._schema = parent_schema # needed for find_refs() and deref()
         self._pk = pk
         self._dbvalue_dict = dict()
         for i, val in value_dict.iteritems():
@@ -81,7 +81,7 @@ class DBRow(object):
 class DBValue(object):
     '''Contains value'''
     def __init__(self, parent_schema, value):
-        self._schema = parent_schema
+        self._schema = parent_schema # needed for deref()
         self._value = value
 
     @property
