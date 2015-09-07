@@ -75,8 +75,7 @@ class DBRow(object):
     def find_refs(self, table_name, column_name):
         '''Find rows in other table, that refer to this row'''
         table = getattr(self._schema, table_name)
-        return [r for k, r in table._rows.items()
-            if getattr(r, column_name).value == self.pk_value]
+        return table.find_rows(column_name, self.pk_value)
 
 
 class DBValue(object):
