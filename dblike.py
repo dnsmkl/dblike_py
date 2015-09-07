@@ -45,7 +45,7 @@ class DBTable(object):
 
     def add_row(self, value_dict):
         new_row = DBRow(self._schema, self._pk, value_dict)
-        self._rows[new_row.key] = new_row
+        self._rows[new_row.pk_value] = new_row
 
     def __getitem__(self, id):
         return self._rows[id]
@@ -61,7 +61,7 @@ class DBRow(object):
             self._dbvalue_dict[i] = DBValue(self._schema, val)
 
     @property
-    def key(self):
+    def pk_value(self):
         return self._dbvalue_dict[self._pk].value
 
     def __getattr__(self, column_name):
@@ -72,7 +72,7 @@ class DBRow(object):
         '''Find rows in other table, that refer to this row'''
         table = getattr(self._schema, table_name)
         return [r for k, r in table._rows.items()
-            if getattr(r, column_name).value == self.key]
+            if getattr(r, column_name).value == self.pk_value]
 
 
 class DBValue(object):
