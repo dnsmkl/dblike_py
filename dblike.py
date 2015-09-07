@@ -1,20 +1,25 @@
 '''\
 Storage system that mimics some aspects of DB.
 
+In the end it is ORM like interface to some nested dictionaries.
+
 This module provides classes, that loosely correspond to database concepts:
-- DBSchema
-- DBTable
-- DBRow
+- DBSchema - dict of tables
+- DBTable  - dict of rows
+- DBRow    - dict of values
 - DBValue
 
-Situation, when it can be useful:
-- Needed data is in DB dump (e.g. XML file).
-- There is no possibility to load it to actual DB
-- It is more convenient/quicker, to parse the DB dump,
-    load data into DBLIKE system and use its API.
+Specific situation, when it can be useful:
+- Data is structured similarly as DB (e.g. XML dump of database file).
+- There is no possibility to actually load data to DB.
+- It is inconvenient/inefficient to use existing API (e.g. XPath).
+- It is easy/quick to load data into dblike.
 
 It will not be useful if real database is needed.
-(no data consistency checks, no data types, no transactions)
+- No data consistency checks
+- No data types
+- No transactions
+- No optimizations
 '''
 
 
