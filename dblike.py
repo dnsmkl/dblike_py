@@ -88,7 +88,7 @@ class DBValue(object):
     def value(self):
         return self._value
 
-    def deref_in(self, table_name):
+    def deref(self, table_name):
         '''Retrieve row, by using this value as key in the supplied table'''
         return getattr(self._schema, table_name)[self.value]
 

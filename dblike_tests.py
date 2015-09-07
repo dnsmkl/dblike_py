@@ -20,7 +20,7 @@ class DBLikeTestCase(unittest.TestCase):
 
     def test_value_deref(self):
         s = self.s
-        self.assertEquals(s.items[1].owner_id.deref_in('owners').owner_name.value, 'Tom')
+        self.assertEquals(s.items[1].owner_id.deref('owners').owner_name.value, 'Tom')
 
     def test_row_find_refs(self):
         s = self.s
