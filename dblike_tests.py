@@ -66,6 +66,24 @@ class DBRowTestCase(unittest.TestCase):
         self.assertEquals(x.a.value, 'this is a')
         self.assertEquals(x.b.value, 'this is not a')
 
+    def test_column_values(self):
+        x = DBRow(parent_schema=None,
+                    pk=('key'),
+                    value_dict={'key':'col1', 'b':'col2', 'c': 'col3', 'd': 'col4'}
+                )
+        # Specify columns by different types:
+        self.assertItemsEqual(x.column_values(('b', 'c')), ['col2', 'col3']) # tuple
+        self.assertItemsEqual(x.column_values(('b', 'c')), ['col2', 'col3']) # list
+        self.assertItemsEqual(x.column_values('b c'), ['col2', 'col3']) # string
+        # Change column order:
+        self.assertItemsEqual(x.column_values('key b c d'), ['col1', 'col2', 'col3', 'col4'])
+        self.assertItemsEqual(x.column_values('b key c d'), ['col2', 'col1', 'col3', 'col4'])
+        self.assertItemsEqual(x.column_values('d b c key'), ['col1', 'col2', 'col3', 'col4'])
+        self.assertItemsEqual(x.column_values('d c b key'), ['col4', 'col3', 'col2', 'col1'])
+        # Repeat columns:
+        self.assertItemsEqual(x.column_values('d d d'), ['col4', 'col4', 'col4'])
+        self.assertItemsEqual(x.column_values('b c b'), ['col2', 'col3', 'col2'])
+
 
 class DBValueTestCase(unittest.TestCase):
     def test_value(self):

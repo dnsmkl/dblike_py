@@ -77,6 +77,11 @@ class DBRow(object):
         table = getattr(self._schema, table_name)
         return table.find_rows(column_name, self.pk_value)
 
+    def column_values(self, column_names):
+        if isinstance(column_names, str):
+            column_names = column_names.split()
+        return [self._dbvalue_dict[name].value for name in column_names]
+
 
 class DBValue(object):
     '''Contains value'''
