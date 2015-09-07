@@ -43,6 +43,22 @@ class DBTableTestCase(unittest.TestCase):
         x.add_row({'row_id':1, 'some_value':'ThisIsValue'})
         self.assertEquals(x[1].some_value.value, 'ThisIsValue')
 
+    def test_find_row(self):
+        x = DBTable(parent_schema=None, pk='row_id')
+        x.add_row({'row_id':1, 'some_value':'value1'})
+        x.add_row({'row_id':2, 'some_value':'value2'})
+        x.add_row({'row_id':3, 'some_value':'valueX'})
+        x.add_row({'row_id':4, 'some_value':'valueX'})
+
+        rows = x.find_rows('some_value', 'value2')
+        self.assertEquals(len(rows), 1)
+        self.assertEquals(rows[0].row_id.value, 2)
+
+        rows = x.find_rows('some_value', 'valueX')
+        self.assertEquals(len(rows), 2)
+        self.assertEquals(rows[0].row_id.value, 3)
+        self.assertEquals(rows[1].row_id.value, 4)
+
 
 class DBRowTestCase(unittest.TestCase):
     def test(self):

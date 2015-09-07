@@ -47,6 +47,10 @@ class DBTable(object):
         new_row = DBRow(self._schema, self._pk, value_dict)
         self._rows[new_row.pk_value] = new_row
 
+    def find_rows(self, column_name, column_value):
+        return [r for k, r in self._rows.items()
+            if getattr(r, column_name).value == column_value]
+
     def __getitem__(self, id):
         return self._rows[id]
 
