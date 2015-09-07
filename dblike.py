@@ -43,7 +43,7 @@ class DBTable(object):
         self._pk = pk
         self._rows = dict()
 
-    def save_row(self, value_dict):
+    def add_row(self, value_dict):
         new_row = DBRow(self._schema, self._pk, value_dict)
         self._rows[new_row.key] = new_row
 

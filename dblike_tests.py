@@ -13,9 +13,9 @@ class DBLikeTestCase(unittest.TestCase):
                     TableDef(name='items', pk='item_id'),
                     TableDef(name='owners', pk='owner_id')
                 ])
-        s.owners.save_row({'owner_id':1, 'owner_name':'Tom'})
-        s.items.save_row({'item_id':1, 'name':'chair', 'owner_id':1})
-        s.items.save_row({'item_id':2, 'name':'house', 'owner_id':1})
+        s.owners.add_row({'owner_id':1, 'owner_name':'Tom'})
+        s.items.add_row({'item_id':1, 'name':'chair', 'owner_id':1})
+        s.items.add_row({'item_id':2, 'name':'house', 'owner_id':1})
         self.s = s
 
     def test_column_deref(self):
@@ -33,14 +33,14 @@ class DBLikeTestCase(unittest.TestCase):
 class DBSchemaTestCase(unittest.TestCase):
     def test_simple_set_get(self):
         s = DBSchema(schema_def=[TableDef('table1','column1')])
-        s.table1.save_row({'column1':1, 'some_value':'ThisIsValue'})
+        s.table1.add_row({'column1':1, 'some_value':'ThisIsValue'})
         self.assertEquals(s.table1[1].some_value.value, 'ThisIsValue')
 
 
 class DBTableTestCase(unittest.TestCase):
     def test(self):
         x = DBTable(parent_schema=None, pk='row_id')
-        x.save_row({'row_id':1, 'some_value':'ThisIsValue'})
+        x.add_row({'row_id':1, 'some_value':'ThisIsValue'})
         self.assertEquals(x[1].some_value.value, 'ThisIsValue')
 
 
