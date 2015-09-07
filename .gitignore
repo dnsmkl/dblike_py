@@ -1,0 +1,8 @@
+# Ignore everything
+*
+
+# Exception-1 : all python files
+!*.py
+
+# Exception-2 : .gitignore file (this file itself)
+!.gitignore
