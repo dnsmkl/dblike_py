@@ -18,11 +18,11 @@ class DBLikeTestCase(unittest.TestCase):
         s.items.add_row({'item_id':2, 'name':'house', 'owner_id':1})
         self.s = s
 
-    def test_column_deref(self):
+    def test_value_deref(self):
         s = self.s
         self.assertEquals(s.items[1].owner_id.deref_in('owners').owner_name.value, 'Tom')
 
-    def test_find_refs(self):
+    def test_row_find_refs(self):
         s = self.s
         owned_items = s.owners[1].find_refs('items', 'owner_id')
         self.assertEquals(len(owned_items), 2)
@@ -31,14 +31,14 @@ class DBLikeTestCase(unittest.TestCase):
 
 
 class DBSchemaTestCase(unittest.TestCase):
-    def test_simple_set_get(self):
+    def test_getattr(self):
         s = DBSchema(schema_def=[TableDef('table1','column1')])
         s.table1.add_row({'column1':1, 'some_value':'ThisIsValue'})
         self.assertEquals(s.table1[1].some_value.value, 'ThisIsValue')
 
 
 class DBTableTestCase(unittest.TestCase):
-    def test(self):
+    def test_getitem(self):
         x = DBTable(parent_schema=None, pk='row_id')
         x.add_row({'row_id':1, 'some_value':'ThisIsValue'})
         self.assertEquals(x[1].some_value.value, 'ThisIsValue')
@@ -61,14 +61,14 @@ class DBTableTestCase(unittest.TestCase):
 
 
 class DBRowTestCase(unittest.TestCase):
-    def test(self):
+    def test_getattr(self):
         x = DBRow(parent_schema=None, pk='a', value_dict={'a':'this is a', 'b':'this is not a'})
         self.assertEquals(x.a.value, 'this is a')
         self.assertEquals(x.b.value, 'this is not a')
 
 
 class DBValueTestCase(unittest.TestCase):
-    def test(self):
+    def test_value(self):
         x = DBValue(parent_schema=None, value='ThisIsValue')
         self.assertEquals(x.value, 'ThisIsValue')
 
