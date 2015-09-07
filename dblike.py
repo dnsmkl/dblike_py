@@ -25,7 +25,7 @@ TableDef = namedtuple("TableDef", "name pk")
 
 
 class DBSchema(object):
-    'Contains dict of DBTable'
+    '''Contains dict of DBTable'''
     def __init__(self, schema_def):
         self._tables = dict()
         assert isinstance(schema_def, list)
@@ -37,7 +37,7 @@ class DBSchema(object):
 
 
 class DBTable(object):
-    'Contains dict of DBRow'
+    '''Contains dict of DBRow'''
     def __init__(self, parent_schema, pk):
         self._schema = parent_schema
         self._pk = pk
@@ -52,7 +52,7 @@ class DBTable(object):
 
 
 class DBRow(object):
-    'Contains dict of DBValue'
+    '''Contains dict of DBValue'''
     def __init__(self, parent_schema, pk, value_dict):
         self._schema = parent_schema
         self._pk = pk
@@ -76,7 +76,7 @@ class DBRow(object):
 
 
 class DBValue(object):
-    'Contains value'
+    '''Contains value'''
     def __init__(self, parent_schema, value):
         self._schema = parent_schema
         self._value = value
@@ -86,7 +86,7 @@ class DBValue(object):
         return self._value
 
     def deref_in(self, table_name):
-        'Retrieve row, by using this value as key in the supplied table'
+        '''Retrieve row, by using this value as key in the supplied table'''
         return getattr(self._schema, table_name)[self.value]
 
 
