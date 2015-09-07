@@ -31,68 +31,68 @@ class DBLikeTestCase(unittest.TestCase):
 
 class DBSchemaTestCase(unittest.TestCase):
     def test_getattr(self):
-        s = DBSchema(schema_def=[TableDef('table1','column1')])
-        s.table1.add_row({'column1':1, 'some_value':'ThisIsValue'})
-        self.assertEquals(s.table1[1].some_value.value, 'ThisIsValue')
+        s = DBSchema(schema_def=[TableDef(name='test_table', pk='k')])
+        s.test_table.add_row({'k':1, 'val':'valueX'})
+        self.assertEquals(s.test_table[1].val.value, 'valueX')
 
 
 class DBTableTestCase(unittest.TestCase):
     def test_getitem(self):
         x = DBTable(parent_schema=None, pk='row_id')
-        x.add_row({'row_id':1, 'some_value':'ThisIsValue'})
-        self.assertEquals(x[1].some_value.value, 'ThisIsValue')
+        x.add_row({'row_id':1, 'val':'valueX'})
+        self.assertEquals(x[1].val.value, 'valueX')
 
     def test_getitem_multivalued_pk(self):
         x = DBTable(parent_schema=None, pk='row_id id_modif')
-        x.add_row({'row_id':1, 'id_modif':100, 'val':'value'})
-        self.assertEquals(x[1,100].val.value, 'value')
+        x.add_row({'row_id':1, 'id_modif':100, 'val':'valueX'})
+        self.assertEquals(x[1,100].val.value, 'valueX')
 
     def test_find_rows(self):
         x = DBTable(parent_schema=None, pk='row_id')
-        x.add_row({'row_id':1, 'some_value':'value1'})
-        x.add_row({'row_id':2, 'some_value':'value2'})
-        x.add_row({'row_id':3, 'some_value':'valueX'})
-        x.add_row({'row_id':4, 'some_value':'valueX'})
+        x.add_row({'row_id':1, 'val':'value1'})
+        x.add_row({'row_id':2, 'val':'value2'})
+        x.add_row({'row_id':3, 'val':'valueX'})
+        x.add_row({'row_id':4, 'val':'valueX'})
 
         # Find one row, based on one column
-        rows = x.find_rows(['some_value'], ['value2'])
+        rows = x.find_rows(['val'], ['value2'])
         self.assertEquals(len(rows), 1)
         self.assertEquals(rows[0].row_id.value, 2)
 
         # Find more then one row, based on one column
-        rows = x.find_rows(['some_value'], ['valueX'])
+        rows = x.find_rows(['val'], ['valueX'])
         self.assertEquals(len(rows), 2)
         self.assertItemsEqual([r.row_id.value for r in rows], [3,4])
 
         # Find one row, based on two columns
-        rows = x.find_rows(['some_value', 'row_id'], ['valueX', 3])
+        rows = x.find_rows(['val', 'row_id'], ['valueX', 3])
         self.assertEquals(len(rows), 1)
         self.assertEqual(rows[0].row_id.value, 3)
 
 
 class DBRowTestCase(unittest.TestCase):
     def test_getattr(self):
-        x = DBRow(parent_schema=None, pk='a', value_dict={'a':'this is a', 'b':'this is not a'})
-        self.assertEquals(x.a.value, 'this is a')
-        self.assertEquals(x.b.value, 'this is not a')
+        x = DBRow(parent_schema=None, pk='k', value_dict={'k':'a1', 'b':'b1'})
+        self.assertEquals(x.k.value, 'a1')
+        self.assertEquals(x.b.value, 'b1')
 
     def test_column_values(self):
         x = DBRow(parent_schema=None,
-                    pk=('key'),
-                    value_dict={'key':'col1', 'b':'col2', 'c': 'col3', 'd': 'col4'}
+                    pk=('k'),
+                    value_dict={'k':'a1', 'b':'b1', 'c': 'c1', 'd': 'd1'}
                 )
         # Specify columns by different types:
-        self.assertEqual(x.column_values(('b', 'c')), tuple(['col2', 'col3'])) # tuple
-        self.assertEqual(x.column_values(('b', 'c')), tuple(['col2', 'col3'])) # list
-        self.assertEqual(x.column_values('b c'), tuple(['col2', 'col3'])) # string
+        self.assertEqual(x.column_values(('b', 'c')), tuple(['b1', 'c1'])) # tuple
+        self.assertEqual(x.column_values(('b', 'c')), tuple(['b1', 'c1'])) # list
+        self.assertEqual(x.column_values('b c'), tuple(['b1', 'c1'])) # string
         # Change column order:
-        self.assertEqual(x.column_values('key b c d'), tuple(['col1', 'col2', 'col3', 'col4']))
-        self.assertEqual(x.column_values('b key c d'), tuple(['col2', 'col1', 'col3', 'col4']))
-        self.assertEqual(x.column_values('d b c key'), tuple(['col4', 'col2', 'col3', 'col1']))
-        self.assertEqual(x.column_values('d c b key'), tuple(['col4', 'col3', 'col2', 'col1']))
+        self.assertEqual(x.column_values('k b c d'), tuple(['a1', 'b1', 'c1', 'd1']))
+        self.assertEqual(x.column_values('b k c d'), tuple(['b1', 'a1', 'c1', 'd1']))
+        self.assertEqual(x.column_values('d b c k'), tuple(['d1', 'b1', 'c1', 'a1']))
+        self.assertEqual(x.column_values('d c b k'), tuple(['d1', 'c1', 'b1', 'a1']))
         # Repeat columns:
-        self.assertEqual(x.column_values('d d d'), tuple(['col4', 'col4', 'col4']))
-        self.assertEqual(x.column_values('b c b'), tuple(['col2', 'col3', 'col2']))
+        self.assertEqual(x.column_values('d d d'), tuple(['d1', 'd1', 'd1']))
+        self.assertEqual(x.column_values('b c b'), tuple(['b1', 'c1', 'b1']))
 
     def test_multivalued_pk(self):
         x = DBRow(parent_schema=None, pk='a b', value_dict={'a':'a1', 'b':'b1', 'c':'c1'})
