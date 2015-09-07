@@ -26,8 +26,7 @@ class DBLikeTestCase(unittest.TestCase):
         s = self.s
         owned_items = s.owners[1].find_refs('items', 'owner_id')
         self.assertEquals(len(owned_items), 2)
-        self.assertEquals(owned_items[0].name.value, 'chair')
-        self.assertEquals(owned_items[1].name.value, 'house')
+        self.assertItemsEqual([v.name.value for v in owned_items], ['chair','house'])
 
 
 class DBSchemaTestCase(unittest.TestCase):
@@ -43,21 +42,27 @@ class DBTableTestCase(unittest.TestCase):
         x.add_row({'row_id':1, 'some_value':'ThisIsValue'})
         self.assertEquals(x[1].some_value.value, 'ThisIsValue')
 
-    def test_find_row(self):
+    def test_find_rows(self):
         x = DBTable(parent_schema=None, pk='row_id')
         x.add_row({'row_id':1, 'some_value':'value1'})
         x.add_row({'row_id':2, 'some_value':'value2'})
         x.add_row({'row_id':3, 'some_value':'valueX'})
         x.add_row({'row_id':4, 'some_value':'valueX'})
 
-        rows = x.find_rows('some_value', 'value2')
+        # Find one row, based on one column
+        rows = x.find_rows(['some_value'], ['value2'])
         self.assertEquals(len(rows), 1)
         self.assertEquals(rows[0].row_id.value, 2)
 
-        rows = x.find_rows('some_value', 'valueX')
+        # Find more then one row, based on one column
+        rows = x.find_rows(['some_value'], ['valueX'])
         self.assertEquals(len(rows), 2)
-        self.assertEquals(rows[0].row_id.value, 3)
-        self.assertEquals(rows[1].row_id.value, 4)
+        self.assertItemsEqual([r.row_id.value for r in rows], [3,4])
+
+        # Find one row, based on two columns
+        rows = x.find_rows(['some_value', 'row_id'], ['valueX', 3])
+        self.assertEquals(len(rows), 1)
+        self.assertEqual(rows[0].row_id.value, 3)
 
 
 class DBRowTestCase(unittest.TestCase):
@@ -72,17 +77,17 @@ class DBRowTestCase(unittest.TestCase):
                     value_dict={'key':'col1', 'b':'col2', 'c': 'col3', 'd': 'col4'}
                 )
         # Specify columns by different types:
-        self.assertItemsEqual(x.column_values(('b', 'c')), ['col2', 'col3']) # tuple
-        self.assertItemsEqual(x.column_values(('b', 'c')), ['col2', 'col3']) # list
-        self.assertItemsEqual(x.column_values('b c'), ['col2', 'col3']) # string
+        self.assertEqual(x.column_values(('b', 'c')), tuple(['col2', 'col3'])) # tuple
+        self.assertEqual(x.column_values(('b', 'c')), tuple(['col2', 'col3'])) # list
+        self.assertEqual(x.column_values('b c'), tuple(['col2', 'col3'])) # string
         # Change column order:
-        self.assertItemsEqual(x.column_values('key b c d'), ['col1', 'col2', 'col3', 'col4'])
-        self.assertItemsEqual(x.column_values('b key c d'), ['col2', 'col1', 'col3', 'col4'])
-        self.assertItemsEqual(x.column_values('d b c key'), ['col1', 'col2', 'col3', 'col4'])
-        self.assertItemsEqual(x.column_values('d c b key'), ['col4', 'col3', 'col2', 'col1'])
+        self.assertEqual(x.column_values('key b c d'), tuple(['col1', 'col2', 'col3', 'col4']))
+        self.assertEqual(x.column_values('b key c d'), tuple(['col2', 'col1', 'col3', 'col4']))
+        self.assertEqual(x.column_values('d b c key'), tuple(['col4', 'col2', 'col3', 'col1']))
+        self.assertEqual(x.column_values('d c b key'), tuple(['col4', 'col3', 'col2', 'col1']))
         # Repeat columns:
-        self.assertItemsEqual(x.column_values('d d d'), ['col4', 'col4', 'col4'])
-        self.assertItemsEqual(x.column_values('b c b'), ['col2', 'col3', 'col2'])
+        self.assertEqual(x.column_values('d d d'), tuple(['col4', 'col4', 'col4']))
+        self.assertEqual(x.column_values('b c b'), tuple(['col2', 'col3', 'col2']))
 
 
 class DBValueTestCase(unittest.TestCase):

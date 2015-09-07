@@ -47,11 +47,13 @@ class DBTable(object):
         new_row = DBRow(self._schema, self._pk, value_dict)
         self._rows[new_row.pk_value] = new_row
 
-    def find_rows(self, column_name, column_value):
-        return [r for k, r in self._rows.items()
-            if getattr(r, column_name).value == column_value]
+    def find_rows(self, column_names, column_values):
+        return [row for row in self._rows.values()
+            if list(row.column_values(column_names)) == list(column_values)]
 
     def __getitem__(self, id):
+        if not isinstance(id, tuple):
+            id = tuple([id])
         return self._rows[id]
 
 
@@ -66,21 +68,23 @@ class DBRow(object):
 
     @property
     def pk_value(self):
-        return self._dbvalue_dict[self._pk].value
+        return self.column_values(self._pk)
 
     def __getattr__(self, column_name):
         assert column_name in self._dbvalue_dict, str(self._dbvalue_dict)
         return self._dbvalue_dict[column_name]
 
-    def find_refs(self, table_name, column_name):
+    def find_refs(self, table_name, column_names):
         '''Find rows in other table, that refer to this row'''
+        if isinstance(column_names, str):
+            column_names = column_names.split()
         table = getattr(self._schema, table_name)
-        return table.find_rows(column_name, self.pk_value)
+        return table.find_rows(column_names, self.pk_value)
 
     def column_values(self, column_names):
         if isinstance(column_names, str):
             column_names = column_names.split()
-        return [self._dbvalue_dict[name].value for name in column_names]
+        return tuple([self._dbvalue_dict[name].value for name in column_names])
 
 
 class DBValue(object):
