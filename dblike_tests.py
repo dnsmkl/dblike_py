@@ -42,6 +42,11 @@ class DBTableTestCase(unittest.TestCase):
         x.add_row({'row_id':1, 'some_value':'ThisIsValue'})
         self.assertEquals(x[1].some_value.value, 'ThisIsValue')
 
+    def test_getitem_multivalued_pk(self):
+        x = DBTable(parent_schema=None, pk='row_id id_modif')
+        x.add_row({'row_id':1, 'id_modif':100, 'val':'value'})
+        self.assertEquals(x[1,100].val.value, 'value')
+
     def test_find_rows(self):
         x = DBTable(parent_schema=None, pk='row_id')
         x.add_row({'row_id':1, 'some_value':'value1'})
@@ -88,6 +93,12 @@ class DBRowTestCase(unittest.TestCase):
         # Repeat columns:
         self.assertEqual(x.column_values('d d d'), tuple(['col4', 'col4', 'col4']))
         self.assertEqual(x.column_values('b c b'), tuple(['col2', 'col3', 'col2']))
+
+    def test_multivalued_pk(self):
+        x = DBRow(parent_schema=None, pk='a b', value_dict={'a':'a1', 'b':'b1', 'c':'c1'})
+        self.assertEquals(x.a.value, 'a1')
+        self.assertEquals(x.b.value, 'b1')
+        self.assertEquals(x.c.value, 'c1')
 
 
 class DBValueTestCase(unittest.TestCase):
