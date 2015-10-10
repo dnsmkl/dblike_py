@@ -61,6 +61,11 @@ class DBTable(object):
             id = tuple([id])
         return self._rows[id]
 
+    def __contains__(self, id):
+        if not isinstance(id, tuple):
+            id = tuple([id])
+        return id in self._rows
+
 
 class DBRow(object):
     '''Contains dict of DBValue'''

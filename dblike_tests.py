@@ -69,6 +69,11 @@ class DBTableTestCase(unittest.TestCase):
         self.assertEquals(len(rows), 1)
         self.assertEqual(rows[0].row_id.value, 3)
 
+    def test_contains(self):
+        x = DBTable(parent_schema=None, pk='row_id')
+        x.add_row({'row_id':1, 'val':'value1'})
+        self.assertTrue(1 in x)
+
 
 class DBRowTestCase(unittest.TestCase):
     def test_getattr(self):
