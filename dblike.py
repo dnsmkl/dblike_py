@@ -40,6 +40,9 @@ class DBSchema(object):
     def __getattr__(self, table_name):
         return self._tables[table_name]
 
+    def __getitem__(self, table_name):
+        return self._tables[table_name]
+
 
 class DBTable(object):
     '''Contains dict of DBRow'''
