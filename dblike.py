@@ -75,6 +75,9 @@ class DBTable(object):
             else:
                 yield (k, v)
 
+    def values(self):
+        return self._rows.values()
+
 
 class DBRow(object):
     '''Contains dict of DBValue'''
