@@ -86,7 +86,7 @@ class DBTableTestCase(unittest.TestCase):
             self.assertEquals(k, 1)
             self.assertEquals(v.val.value, 'value1')
 
-    def test_iteritems_multivalued_key(self):
+    def test_iteritems_multikey(self):
         x = DBTable(parent_schema=None, pk='row_id m')
         x.add_row({'row_id':1, 'm':100, 'val':'value1'})
         for k,v in x.iteritems():
