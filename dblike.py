@@ -66,6 +66,14 @@ class DBTable(object):
             id = tuple([id])
         return id in self._rows
 
+    def iteritems(self):
+        for k, v in self._rows.iteritems():
+            assert isinstance(k, tuple)
+            if len(k) == 1:
+                yield (k[0], v)
+            else:
+                yield (k, v)
+
 
 class DBRow(object):
     '''Contains dict of DBValue'''

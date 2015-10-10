@@ -74,6 +74,13 @@ class DBTableTestCase(unittest.TestCase):
         x.add_row({'row_id':1, 'val':'value1'})
         self.assertTrue(1 in x)
 
+    def test_iteritems(self):
+        x = DBTable(parent_schema=None, pk='row_id')
+        x.add_row({'row_id':1, 'val':'value1'})
+        for k,v in x.iteritems():
+            self.assertEquals(k, 1)
+            self.assertEquals(v.val.value, 'value1')
+
 
 class DBRowTestCase(unittest.TestCase):
     def test_getattr(self):
