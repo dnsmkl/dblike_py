@@ -57,6 +57,7 @@ class DBTable(object):
             if list(row.column_values(column_names)) == list(column_values)]
 
     def __getitem__(self, id):
+        assert not(isinstance(id, tuple) and len(id) == 1)
         if not isinstance(id, tuple):
             id = tuple([id])
         return self._rows[id]
