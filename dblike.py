@@ -22,6 +22,7 @@ It will not be useful if real database is needed.
 - No optimizations
 '''
 
+__version__ = "1.1.1"
 
 from collections import namedtuple
 
