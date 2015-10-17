@@ -61,7 +61,7 @@ class DBTable(object):
         return [row for row in self._rows.values()
             if list(row.column_values(column_names)) == list(column_values)]
 
-    def build_index(self, column_names):
+    def _index_create(self, column_names):
         if isinstance(column_names, str):
             column_names = tuple(column_names.split())
         new_index = dict()
@@ -72,7 +72,7 @@ class DBTable(object):
             new_index[idx_key].add(row)
         self._indexes[column_names] = new_index
 
-    def find_rows_by_index(self, column_names, column_values):
+    def _index_find_rows(self, column_names, column_values):
         column_names = _tupleize(column_names)
         column_values = _tupleize(column_values)
         assert column_names in self._indexes, 'Index on "{}" does not exist'.format(column_names)
