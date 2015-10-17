@@ -74,6 +74,16 @@ class DBTableTestCase(unittest.TestCase):
         self.assertEquals(len(rows), 1)
         self.assertEqual(rows[0].row_id.value, 3)
 
+    def test_index(self):
+        x = DBTable(parent_schema=None, pk='row_id')
+        x.add_row({'row_id':1, 'val':'value1'})
+        x.add_row({'row_id':2, 'val':'value2'})
+        x.add_row({'row_id':3, 'val':'valueX'})
+        x.add_row({'row_id':4, 'val':'valueX'})
+        x.build_index('val')
+        rows = x.find_rows_by_index('val', 'valueX')
+        self.assertEquals(rows, set([x[3], x[4]]))
+
     def test_contains_multikey(self):
         x = DBTable(parent_schema=None, pk='row_id m')
         x.add_row({'row_id':1, 'm':100, 'val':'value1'})

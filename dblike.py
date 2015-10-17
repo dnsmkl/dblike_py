@@ -22,7 +22,7 @@ It will not be useful if real database is needed.
 - No optimizations
 '''
 
-__version__ = "1.1.1"
+__version__ = "1.2.0"
 
 from collections import namedtuple
 
@@ -51,6 +51,7 @@ class DBTable(object):
         self._schema = parent_schema # needed for find_refs() and deref()
         self._pk = pk
         self._rows = dict()
+        self._indexes = dict()
 
     def add_row(self, value_dict):
         new_row = DBRow(self._schema, self._pk, value_dict)
@@ -59,6 +60,34 @@ class DBTable(object):
     def find_rows(self, column_names, column_values):
         return [row for row in self._rows.values()
             if list(row.column_values(column_names)) == list(column_values)]
+
+    def build_index(self, column_names):
+        if isinstance(column_names, str):
+            column_names = tuple(column_names.split())
+        new_index = dict()
+        for row in self._rows.values():
+            idx_key = row.column_values(column_names)
+            if idx_key not in new_index:
+                new_index[idx_key] = set()
+            new_index[idx_key].add(row)
+        self._indexes[column_names] = new_index
+
+    def find_rows_by_index(self, column_names, column_values):
+        if isinstance(column_names, str):
+            column_names = tuple(column_names.split())
+        else:
+            column_names = tuple(column_names)
+        if isinstance(column_values, str):
+            column_values = tuple(column_values.split())
+        else:
+            column_values = tuple(column_values)
+
+        assert column_names in self._indexes, 'Index on {} does not exist'.format(column_names)
+        index = self._indexes[column_names]
+        if column_values in index:
+            return index[tuple(column_values)]
+        else:
+            return None
 
     def __getitem__(self, id):
         assert not(isinstance(id, tuple) and len(id) == 1)
