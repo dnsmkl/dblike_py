@@ -151,6 +151,10 @@ class DBValueTestCase(unittest.TestCase):
         x = DBValue(parent_schema=None, value='ThisIsValue')
         self.assertEquals(x.value, 'ThisIsValue')
 
+    def test_repr(self):
+        x = DBValue(parent_schema=None, value='ThisIsValue')
+        self.assertEquals(str(x), "DBValue(None, 'ThisIsValue')")
+
 
 class OtherTestCase(unittest.TestCase):
     def test_tupulize(self):

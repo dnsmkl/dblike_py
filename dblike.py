@@ -153,6 +153,9 @@ class DBValue(object):
         '''Retrieve row, by using this value as key in the supplied table'''
         return getattr(self._schema, table_name)[self.value]
 
+    def __repr__(self):
+        return 'DBValue({!r}, {!r})'.format(self._schema, self._value)
+
 
 def _tupleize(str_or_list):
     '''Make a tuple by modules standard rules
