@@ -157,7 +157,8 @@ class DBValue(object):
 def _tupleize(str_or_list):
     '''Make a tuple by modules standard rules
 
-    It should be used for column names and filtering values'''
+    It should be used for column names and filtering values
+    '''
     if isinstance(str_or_list, str):
         return tuple(str_or_list.split())
     else:
