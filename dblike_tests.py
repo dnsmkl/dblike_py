@@ -1,5 +1,5 @@
 import unittest
-from dblike import TableDef, DBSchema, DBTable, DBRow, DBValue
+from dblike import TableDef, DBSchema, DBTable, DBRow, DBValue, _tupleize
 
 
 class DBLikeTestCase(unittest.TestCase):
@@ -150,6 +150,13 @@ class DBValueTestCase(unittest.TestCase):
     def test_value(self):
         x = DBValue(parent_schema=None, value='ThisIsValue')
         self.assertEquals(x.value, 'ThisIsValue')
+
+
+class OtherTestCase(unittest.TestCase):
+    def test_tupulize(self):
+        self.assertEquals(_tupleize('1'), tuple(['1']))
+        self.assertEquals(_tupleize('a bc'), tuple(['a', 'bc']))
+        self.assertEquals(_tupleize(['a', 'bc']), tuple(['a', 'bc']))
 
 
 def run_tests():

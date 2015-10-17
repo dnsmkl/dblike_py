@@ -73,16 +73,9 @@ class DBTable(object):
         self._indexes[column_names] = new_index
 
     def find_rows_by_index(self, column_names, column_values):
-        if isinstance(column_names, str):
-            column_names = tuple(column_names.split())
-        else:
-            column_names = tuple(column_names)
-        if isinstance(column_values, str):
-            column_values = tuple(column_values.split())
-        else:
-            column_values = tuple(column_values)
-
-        assert column_names in self._indexes, 'Index on {} does not exist'.format(column_names)
+        column_names = _tupleize(column_names)
+        column_values = _tupleize(column_values)
+        assert column_names in self._indexes, 'Index on "{}" does not exist'.format(column_names)
         index = self._indexes[column_names]
         if column_values in index:
             return index[tuple(column_values)]
@@ -131,14 +124,12 @@ class DBRow(object):
 
     def find_refs(self, table_name, column_names):
         '''Find rows in other table, that refer to this row'''
-        if isinstance(column_names, str):
-            column_names = column_names.split()
+        column_names = _tupleize(column_names)
         table = getattr(self._schema, table_name)
         return table.find_rows(column_names, self.pk_value)
 
     def column_values(self, column_names):
-        if isinstance(column_names, str):
-            column_names = column_names.split()
+        column_names = _tupleize(column_names)
         return tuple([self._dbvalue_dict[name].value for name in column_names])
 
 
@@ -155,6 +146,16 @@ class DBValue(object):
     def deref(self, table_name):
         '''Retrieve row, by using this value as key in the supplied table'''
         return getattr(self._schema, table_name)[self.value]
+
+
+def _tupleize(str_or_list):
+    '''Make a tuple by modules standard rules
+
+    It should be used for column names and filtering values'''
+    if isinstance(str_or_list, str):
+        return tuple(str_or_list.split())
+    else:
+        return tuple(str_or_list)
 
 
 if __name__ == '__main__':
