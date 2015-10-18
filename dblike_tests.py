@@ -62,7 +62,7 @@ class DBTableTestCase(unittest.TestCase):
         # Find one row, based on one column
         rows = x.find_rows(['val'], ['value2'])
         self.assertEquals(len(rows), 1)
-        self.assertEquals(rows[0].row_id.value, 2)
+        self.assertEquals(list(rows)[0].row_id.value, 2)
 
         # Find more then one row, based on one column
         rows = x.find_rows(['val'], ['valueX'])
@@ -72,7 +72,7 @@ class DBTableTestCase(unittest.TestCase):
         # Find one row, based on two columns
         rows = x.find_rows(['val', 'row_id'], ['valueX', 3])
         self.assertEquals(len(rows), 1)
-        self.assertEqual(rows[0].row_id.value, 3)
+        self.assertEqual(list(rows)[0].row_id.value, 3)
 
     def test_index(self):
         x = DBTable(parent_schema=None, pk='row_id')
@@ -87,6 +87,8 @@ class DBTableTestCase(unittest.TestCase):
         self.assertFalse(x._index_exists('something else'))
         rows = x._index_find_rows('val', 'valueX')
         self.assertEquals(rows, set([x[3], x[4]]))
+        x._index_clear_all()
+        self.assertFalse(x._index_exists('val'))
 
     def test_contains_multikey(self):
         x = DBTable(parent_schema=None, pk='row_id m')

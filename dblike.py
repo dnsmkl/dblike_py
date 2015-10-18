@@ -22,7 +22,7 @@ It will not be useful if real database is needed.
 - No optimizations
 '''
 
-__version__ = "1.2.0"
+__version__ = "2.0.0"
 
 from collections import namedtuple
 
@@ -54,21 +54,31 @@ class DBTable(object):
         self._indexes = dict()
 
     def add_row(self, value_dict):
+        '''Add a row into the table'''
+        self._index_clear_all()
         new_row = DBRow(self._schema, self._pk, value_dict)
         self._rows[new_row.pk_value] = new_row
 
-    def find_rows(self, column_names, column_values):
-        return [row for row in self._rows.values()
-            if list(row.column_values(column_names)) == list(column_values)]
+    def find_rows(self, column_names, column_values, skip_index=False):
+        '''Find rows based on supplied column/value filtering
+
+        By default building index and then using it.
+        (indexing can be disabled by skip_index parameter)
+        '''
+        if not skip_index:
+            if not self._index_exists(column_names):
+                self._index_create(column_names)
+            return self._index_find_rows(column_names, column_values)
+        else:
+            return self._walking_find_rows(column_names, column_values)
+
+    def _walking_find_rows(self, column_names, column_values):
+        return set([row for row in self._rows.values()
+            if list(row.column_values(column_names)) == list(column_values)])
 
     def _index_create(self, column_names):
-        '''Create index, to make finding rows more efficient
-
-        Index is not updated/maintained once created,
-        so any changes in rows will make index invalid.
-        '''
-        if isinstance(column_names, str):
-            column_names = tuple(column_names.split())
+        '''Create index, to make finding rows more efficient'''
+        column_names = _tupleize(column_names)
         new_index = dict()
         for row in self._rows.values():
             idx_key = row.column_values(column_names)
@@ -92,6 +102,11 @@ class DBTable(object):
         '''Check if index exists'''
         column_names = _tupleize(column_names)
         return column_names in self._indexes
+
+    def _index_clear_all(self):
+        for index in self._indexes.values():
+            index.clear()
+        self._indexes.clear()
 
     def __getitem__(self, id):
         assert not(isinstance(id, tuple) and len(id) == 1)
