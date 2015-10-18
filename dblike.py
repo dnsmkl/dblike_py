@@ -88,6 +88,11 @@ class DBTable(object):
         else:
             return None
 
+    def _index_exists(self, column_names):
+        '''Check if index exists'''
+        column_names = _tupleize(column_names)
+        return column_names in self._indexes
+
     def __getitem__(self, id):
         assert not(isinstance(id, tuple) and len(id) == 1)
         if not isinstance(id, tuple):

@@ -80,7 +80,11 @@ class DBTableTestCase(unittest.TestCase):
         x.add_row({'row_id':2, 'val':'value2'})
         x.add_row({'row_id':3, 'val':'valueX'})
         x.add_row({'row_id':4, 'val':'valueX'})
+        self.assertFalse(x._index_exists('val'))
+        self.assertFalse(x._index_exists('something else'))
         x._index_create('val')
+        self.assertTrue(x._index_exists('val'))
+        self.assertFalse(x._index_exists('something else'))
         rows = x._index_find_rows('val', 'valueX')
         self.assertEquals(rows, set([x[3], x[4]]))
 
