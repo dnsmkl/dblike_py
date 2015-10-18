@@ -10,9 +10,9 @@ This module provides classes, that loosely correspond to database concepts:
 - DBValue
 
 Specific situation, when it can be useful:
-- Data is structured similarly as DB (e.g. XML dump of database file).
+- Data is structured similarly as DB (e.g. XML dump of database schema).
 - There is no possibility to actually load data to DB.
-- It is inconvenient/inefficient to use existing API (e.g. XPath).
+- It is inefficient to use existing API (e.g. thousands of XPath queries).
 - It is easy/quick to load data into dblike.
 
 It will not be useful if real database is needed.
