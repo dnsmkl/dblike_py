@@ -87,6 +87,9 @@ class DBTableTestCase(unittest.TestCase):
         self.assertFalse(x._index_exists('something else'))
         rows = x._index_find_rows('val', 'valueX')
         self.assertEquals(rows, set([x[3], x[4]]))
+        no_rows = x._index_find_rows('val', 'notvalue')
+        for row in no_rows:
+            self.assertTrue(False) # no iterations expected
         x._index_clear_all()
         self.assertFalse(x._index_exists('val'))
 

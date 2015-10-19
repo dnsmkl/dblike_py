@@ -22,7 +22,7 @@ It will not be useful if real database is needed.
 - No optimizations
 '''
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 
 from collections import namedtuple
 
@@ -96,7 +96,7 @@ class DBTable(object):
         if column_values in index:
             return index[tuple(column_values)]
         else:
-            return None
+            return set()
 
     def _index_exists(self, column_names):
         '''Check if index exists'''
