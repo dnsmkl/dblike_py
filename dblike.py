@@ -22,7 +22,7 @@ It will not be useful if real database is needed.
 - No optimizations
 '''
 
-__version__ = "2.0.1"
+__version__ = "2.0.2"
 
 from collections import namedtuple
 
@@ -145,7 +145,7 @@ class DBRow(object):
         return self.column_values(self._pk)
 
     def __getattr__(self, column_name):
-        assert column_name in self._dbvalue_dict, str(self._dbvalue_dict)
+        assert column_name in self._dbvalue_dict, '{} not in {}'.format(column_name, self._dbvalue_dict)
         return self._dbvalue_dict[column_name]
 
     def find_refs(self, table_name, column_names):
