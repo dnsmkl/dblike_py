@@ -40,6 +40,11 @@ class DBSchemaTestCase(unittest.TestCase):
         s.test_table.add_row({'k':1, 'val':'valueX'})
         self.assertEquals(s['test_table'][1].val.value, 'valueX')
 
+    def test_contains(self):
+        s = DBSchema(schema_def=[TableDef(name='test_table', pk='k')])
+        self.assertTrue('test_table' in s)
+        self.assertFalse('test_tabl' in s)
+
 
 class DBTableTestCase(unittest.TestCase):
     def test_getitem(self):

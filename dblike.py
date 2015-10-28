@@ -44,6 +44,9 @@ class DBSchema(object):
     def __getitem__(self, table_name):
         return self._tables[table_name]
 
+    def __contains__(self, table_name):
+        return table_name in self._tables
+
 
 class DBTable(object):
     '''Contains dict of DBRow'''
