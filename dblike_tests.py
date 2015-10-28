@@ -21,13 +21,17 @@ class DBLikeTestCase(unittest.TestCase):
 
     def test_value_deref(self):
         s = self.s
-        self.assertEquals(s.items[1].owner_id.deref('owners').owner_name.value, 'Tom')
+        owner_id = s.items[1].owner_id
+        self.assertEquals(owner_id.deref('owners').owner_name.value, 'Tom')
 
     def test_row_find_refs(self):
         s = self.s
         owned_items = s.owners[1].find_refs('items', 'owner_id')
         self.assertEquals(len(owned_items), 2)
-        self.assertItemsEqual([v.name.value for v in owned_items], ['chair','house'])
+        self.assertItemsEqual(
+            [v.name.value for v in owned_items],
+            ['chair','house']
+        )
 
 
 class DBSchemaTestCase(unittest.TestCase):
@@ -151,20 +155,22 @@ class DBRowTestCase(unittest.TestCase):
                     value_dict={'k':'a1', 'b':'b1', 'c': 'c1', 'd': 'd1'}
                 )
         # Specify columns by different types:
-        self.assertEqual(x.column_values(('b', 'c')), tuple(['b1', 'c1'])) # tuple
-        self.assertEqual(x.column_values(('b', 'c')), tuple(['b1', 'c1'])) # list
-        self.assertEqual(x.column_values('b c'), tuple(['b1', 'c1'])) # string
+        self.assertEqual(x.column_values(('b', 'c')), ('b1', 'c1')) # tuple
+        self.assertEqual(x.column_values(('b', 'c')), ('b1', 'c1')) # list
+        self.assertEqual(x.column_values('b c'), ('b1', 'c1')) # string
         # Change column order:
-        self.assertEqual(x.column_values('k b c d'), tuple(['a1', 'b1', 'c1', 'd1']))
-        self.assertEqual(x.column_values('b k c d'), tuple(['b1', 'a1', 'c1', 'd1']))
-        self.assertEqual(x.column_values('d b c k'), tuple(['d1', 'b1', 'c1', 'a1']))
-        self.assertEqual(x.column_values('d c b k'), tuple(['d1', 'c1', 'b1', 'a1']))
+        self.assertEqual(x.column_values('k b c d'), ('a1', 'b1', 'c1', 'd1'))
+        self.assertEqual(x.column_values('b k c d'), ('b1', 'a1', 'c1', 'd1'))
+        self.assertEqual(x.column_values('d b c k'), ('d1', 'b1', 'c1', 'a1'))
+        self.assertEqual(x.column_values('d c b k'), ('d1', 'c1', 'b1', 'a1'))
         # Repeat columns:
-        self.assertEqual(x.column_values('d d d'), tuple(['d1', 'd1', 'd1']))
-        self.assertEqual(x.column_values('b c b'), tuple(['b1', 'c1', 'b1']))
+        self.assertEqual(x.column_values('d d d'), ('d1', 'd1', 'd1'))
+        self.assertEqual(x.column_values('b c b'), ('b1', 'c1', 'b1'))
 
     def test_multivalued_pk(self):
-        x = DBRow(parent_schema=None, pk='a b', value_dict={'a':'a1', 'b':'b1', 'c':'c1'})
+        x = DBRow(parent_schema=None, pk='a b',
+            value_dict={'a':'a1', 'b':'b1', 'c':'c1'}
+        )
         self.assertEquals(x.a.value, 'a1')
         self.assertEquals(x.b.value, 'b1')
         self.assertEquals(x.c.value, 'c1')

@@ -22,12 +22,12 @@ It will not be useful if real database is needed.
 - No optimizations
 """
 
-__version__ = "2.0.2"
+__version__ = '2.0.3'
 
 from collections import namedtuple
 
 
-TableDef = namedtuple("TableDef", "name pk")
+TableDef = namedtuple('TableDef', 'name pk')
 
 
 class DBSchema(object):
@@ -39,14 +39,10 @@ class DBSchema(object):
         for name, pk in schema_def:
             self._tables[name] = DBTable(self, pk)
 
-    def __getattr__(self, table_name):
-        return self._tables[table_name]
-
-    def __getitem__(self, table_name):
-        return self._tables[table_name]
-
-    def __contains__(self, table_name):
-        return table_name in self._tables
+    # Forward some methods to internal dict.
+    def __getattr__(self, table_name): return self._tables[table_name]
+    def __getitem__(self, table_name): return self._tables[table_name]
+    def __contains__(self, table_name): return table_name in self._tables
 
 
 class DBTable(object):
@@ -97,7 +93,8 @@ class DBTable(object):
         """Find rows by using index"""
         column_names = _tupleize(column_names)
         column_values = _tupleize(column_values)
-        assert column_names in self._indexes, 'Index on "{}" does not exist'.format(column_names)
+        assert column_names in self._indexes,\
+            'Index on "{}" does not exist'.format(column_names)
         index = self._indexes[column_names]
         if column_values in index:
             return index[tuple(column_values)]
@@ -152,7 +149,8 @@ class DBRow(object):
         return self.column_values(self._pk)
 
     def __getattr__(self, column_name):
-        assert column_name in self._dbvalue_dict, '{} not in {}'.format(column_name, self._dbvalue_dict)
+        assert column_name in self._dbvalue_dict,\
+            '{} not in {}'.format(column_name, self._dbvalue_dict)
         return self._dbvalue_dict[column_name]
 
     def find_refs(self, table_name, column_names):
