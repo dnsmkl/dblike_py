@@ -3,12 +3,13 @@ from dblike import TableDef, DBSchema, DBTable, DBRow, DBValue, _tupleize
 
 
 class DBLikeTestCase(unittest.TestCase):
-    '''\
+    """\
     Integration tests of DBLike module
     (tests that are not isolated to separate classes)
-    '''
+    """
+
     def setUp(self):
-        '''Define simple schema for query testing purposes'''
+        """Define simple schema for query testing purposes"""
         s = DBSchema(schema_def=[
                     TableDef(name='items', pk='item_id'),
                     TableDef(name='owners', pk='owner_id')

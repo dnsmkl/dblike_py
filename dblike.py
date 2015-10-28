@@ -1,4 +1,4 @@
-'''\
+"""\
 Storage system that mimics some aspects of DB.
 
 In the end it is ORM like interface to some nested dictionaries.
@@ -20,7 +20,7 @@ It will not be useful if real database is needed.
 - No data types
 - No transactions
 - No optimizations
-'''
+"""
 
 __version__ = "2.0.2"
 
@@ -31,7 +31,8 @@ TableDef = namedtuple("TableDef", "name pk")
 
 
 class DBSchema(object):
-    '''Contains dict of DBTable'''
+    """Contains dict of DBTable"""
+
     def __init__(self, schema_def):
         self._tables = dict()
         assert isinstance(schema_def, list)
@@ -49,7 +50,8 @@ class DBSchema(object):
 
 
 class DBTable(object):
-    '''Contains dict of DBRow'''
+    """Contains dict of DBRow"""
+
     def __init__(self, parent_schema, pk):
         self._schema = parent_schema # needed for find_refs() and deref()
         self._pk = pk
@@ -57,18 +59,18 @@ class DBTable(object):
         self._indexes = dict()
 
     def add_row(self, value_dict):
-        '''Add a row into the table'''
+        """Add a row into the table"""
         self._index_clear_all()
         new_row = DBRow(self._schema, self._pk, value_dict)
         assert new_row.pk_value not in self._rows
         self._rows[new_row.pk_value] = new_row
 
     def find_rows(self, column_names, column_values, skip_index=False):
-        '''Find rows based on supplied column/value filtering
+        """Find rows based on supplied column/value filtering
 
         By default building index and then using it.
         (indexing can be disabled by skip_index parameter)
-        '''
+        """
         if not skip_index:
             if not self._index_exists(column_names):
                 self._index_create(column_names)
@@ -81,7 +83,7 @@ class DBTable(object):
             if list(row.column_values(column_names)) == list(column_values)])
 
     def _index_create(self, column_names):
-        '''Create index, to make finding rows more efficient'''
+        """Create index, to make finding rows more efficient"""
         column_names = _tupleize(column_names)
         new_index = dict()
         for row in self._rows.values():
@@ -92,7 +94,7 @@ class DBTable(object):
         self._indexes[column_names] = new_index
 
     def _index_find_rows(self, column_names, column_values):
-        '''Find rows by using index'''
+        """Find rows by using index"""
         column_names = _tupleize(column_names)
         column_values = _tupleize(column_values)
         assert column_names in self._indexes, 'Index on "{}" does not exist'.format(column_names)
@@ -103,7 +105,7 @@ class DBTable(object):
             return set()
 
     def _index_exists(self, column_names):
-        '''Check if index exists'''
+        """Check if index exists"""
         column_names = _tupleize(column_names)
         return column_names in self._indexes
 
@@ -136,7 +138,8 @@ class DBTable(object):
 
 
 class DBRow(object):
-    '''Contains dict of DBValue'''
+    """Contains dict of DBValue"""
+
     def __init__(self, parent_schema, pk, value_dict):
         self._schema = parent_schema # needed for find_refs() and deref()
         self._pk = pk
@@ -153,7 +156,7 @@ class DBRow(object):
         return self._dbvalue_dict[column_name]
 
     def find_refs(self, table_name, column_names):
-        '''Find rows in other table, that refer to this row'''
+        """Find rows in other table, that refer to this row"""
         column_names = _tupleize(column_names)
         table = getattr(self._schema, table_name)
         return table.find_rows(column_names, self.pk_value)
@@ -164,7 +167,8 @@ class DBRow(object):
 
 
 class DBValue(object):
-    '''Contains value'''
+    """Contains value"""
+
     def __init__(self, parent_schema, value):
         self._schema = parent_schema # needed for deref()
         self._value = value
@@ -174,7 +178,7 @@ class DBValue(object):
         return self._value
 
     def deref(self, table_name):
-        '''Retrieve row, by using this value as key in the supplied table'''
+        """Retrieve row, by using this value as key in the supplied table"""
         return getattr(self._schema, table_name)[self.value]
 
     def __repr__(self):
@@ -182,10 +186,10 @@ class DBValue(object):
 
 
 def _tupleize(str_or_list):
-    '''Make a tuple by modules standard rules
+    """Make a tuple by modules standard rules
 
     It should be used for column names and filtering values
-    '''
+    """
     if isinstance(str_or_list, str):
         return tuple(str_or_list.split())
     else:
