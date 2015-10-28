@@ -31,6 +31,7 @@ class DBLikeTestCase(unittest.TestCase):
 
 
 class DBSchemaTestCase(unittest.TestCase):
+
     def test_getattr(self):
         s = DBSchema(schema_def=[TableDef(name='test_table', pk='k')])
         s.test_table.add_row({'k':1, 'val':'valueX'})
@@ -48,6 +49,7 @@ class DBSchemaTestCase(unittest.TestCase):
 
 
 class DBTableTestCase(unittest.TestCase):
+
     def test_getitem(self):
         x = DBTable(parent_schema=None, pk='row_id')
         x.add_row({'row_id':1, 'val':'valueX'})
@@ -137,6 +139,7 @@ class DBTableTestCase(unittest.TestCase):
 
 
 class DBRowTestCase(unittest.TestCase):
+
     def test_getattr(self):
         x = DBRow(parent_schema=None, pk='k', value_dict={'k':'a1', 'b':'b1'})
         self.assertEquals(x.k.value, 'a1')
@@ -168,6 +171,7 @@ class DBRowTestCase(unittest.TestCase):
 
 
 class DBValueTestCase(unittest.TestCase):
+
     def test_value(self):
         x = DBValue(parent_schema=None, value='ThisIsValue')
         self.assertEquals(x.value, 'ThisIsValue')
@@ -178,6 +182,7 @@ class DBValueTestCase(unittest.TestCase):
 
 
 class OtherTestCase(unittest.TestCase):
+
     def test_tupulize(self):
         self.assertEquals(_tupleize('1'), tuple(['1']))
         self.assertEquals(_tupleize('a bc'), tuple(['a', 'bc']))

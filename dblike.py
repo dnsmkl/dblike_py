@@ -179,6 +179,7 @@ class DBValue(object):
 
     def deref(self, table_name):
         """Retrieve row, by using this value as key in the supplied table"""
+        assert self.value
         return getattr(self._schema, table_name)[self.value]
 
     def __repr__(self):
