@@ -123,6 +123,12 @@ class DBTableTestCase(unittest.TestCase):
         for v in x.values():
             self.assertEquals(v.val.value, 'value1')
 
+    def test_duplicate_check(self):
+        x = DBTable(parent_schema=None, pk='row_id')
+        x.add_row({'row_id':1, 'val':'value1'})
+        with self.assertRaises(AssertionError):
+            x.add_row({'row_id':1, 'val':'value1'})
+
 
 class DBRowTestCase(unittest.TestCase):
     def test_getattr(self):

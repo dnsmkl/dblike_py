@@ -57,6 +57,7 @@ class DBTable(object):
         '''Add a row into the table'''
         self._index_clear_all()
         new_row = DBRow(self._schema, self._pk, value_dict)
+        assert new_row.pk_value not in self._rows
         self._rows[new_row.pk_value] = new_row
 
     def find_rows(self, column_names, column_values, skip_index=False):
