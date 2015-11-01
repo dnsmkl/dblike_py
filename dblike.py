@@ -27,6 +27,8 @@ __version__ = '2.0.3'
 from collections import namedtuple
 
 
+# Table definition used by DBSchema.
+# Contains name (string) and primary key (list or string that is later split)
 TableDef = namedtuple('TableDef', 'name pk')
 
 
@@ -34,6 +36,7 @@ class DBSchema(object):
     """Contains dict of DBTable"""
 
     def __init__(self, schema_def):
+        """Create DBSchema from list of TableDef"""
         self._tables = dict()
         assert isinstance(schema_def, list)
         for name, pk in schema_def:
