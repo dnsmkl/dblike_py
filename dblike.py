@@ -22,9 +22,20 @@ It will not be useful if real database is needed.
 - No optimizations
 """
 
-__version__ = '2.0.3'
+__version__ = '2.0.4'
 
 from collections import namedtuple
+
+
+class DuplicateRowException(Exception):
+    """Duplicate row exception"""
+
+    def __init__(self, existing_row, new_row):
+        super(DuplicateRowException, self).__init__(
+            'Existing: {}; New: {}'.format(existing_row, new_row)
+        )
+        self.existing_row = existing_row
+        self.new_row = new_row
 
 
 # Table definition used by DBSchema.
@@ -61,8 +72,10 @@ class DBTable(object):
         """Add a row into the table"""
         self._index_clear_all()
         new_row = DBRow(self._schema, self._pk, value_dict)
-        assert new_row.pk_value not in self._rows
-        self._rows[new_row.pk_value] = new_row
+        new_pk = new_row.pk_value
+        if new_pk in self._rows:
+            raise DuplicateRowException(self._rows[new_pk], new_row)
+        self._rows[new_pk] = new_row
 
     def find_rows(self, column_names, column_values, skip_index=False):
         """Find rows based on supplied column/value filtering

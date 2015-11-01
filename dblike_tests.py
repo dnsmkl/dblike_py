@@ -1,5 +1,6 @@
 import unittest
-from dblike import TableDef, DBSchema, DBTable, DBRow, DBValue, _tupleize
+from dblike import (TableDef, DBSchema, DBTable, DBRow, DBValue, _tupleize,
+    DuplicateRowException)
 
 
 class DBLikeTestCase(unittest.TestCase):
@@ -138,7 +139,7 @@ class DBTableTestCase(unittest.TestCase):
     def test_duplicate_check(self):
         x = DBTable(parent_schema=None, pk='row_id')
         x.add_row({'row_id':1, 'val':'value1'})
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(DuplicateRowException):
             x.add_row({'row_id':1, 'val':'value1'})
 
 
