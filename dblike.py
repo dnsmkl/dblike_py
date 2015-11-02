@@ -233,7 +233,7 @@ class DBValue(object):
         return getattr(self._schema, table_name)[self.value]
 
     def __repr__(self):
-        return 'DBValue({!r}, {!r})'.format(self._schema, self._value)
+        return 'DBValue({0._schema!r}, {0._value!r})'.format(self)
 
 
 def _tupleize(str_or_list):
