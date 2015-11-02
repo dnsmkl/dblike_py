@@ -63,6 +63,17 @@ class DBTable(object):
     """Contains dict of DBRow"""
 
     def __init__(self, parent_schema, pk):
+        """Construct empty DBTable
+
+        :param parent_schema:
+            Parent schema used by `DBRow.find_refs()` and `DBValue.deref()`.
+            It may be ``None``, but then mentioned methods will fail.
+        :param pk: Primary key of the table
+        :type parent_schema: `DBSchema`
+        :type pk:
+            `list` or `str`.
+            `str` it is converted to `list` via `str.split`
+        """
         self._schema = parent_schema # needed for find_refs() and deref()
         self._pk = pk
         self._rows = dict()
