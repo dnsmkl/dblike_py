@@ -80,7 +80,12 @@ class DBTable(object):
         self._indexes = dict()
 
     def add_row(self, value_dict):
-        """Add a row into the table"""
+        """Add a row into the table
+
+        :param value_dict: map from column name to column value
+        :type value_dict: `dict`
+        :raises DuplicateRowException: in case pk for new row is already taken
+        """
         self._index_clear_all()
         new_row = DBRow(self._schema, self._pk, value_dict)
         new_pk = new_row.pk_value
