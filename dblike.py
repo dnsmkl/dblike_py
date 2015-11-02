@@ -68,11 +68,10 @@ class DBTable(object):
         :param parent_schema:
             Parent schema used by `DBRow.find_refs()` and `DBValue.deref()`.
             It may be ``None``, but then mentioned methods will fail.
-        :param pk: Primary key of the table.
+        :param pk: Primary key column names.
         :type parent_schema: `DBSchema`.
         :type pk:
-            `list` or `str`.
-            `str` it is converted to `list` via `str.split`
+            `tuple`, `list` or `str`. (`str` is processed by `str.split`)
         """
         self._schema = parent_schema # needed for find_refs() and deref()
         self._pk = pk
