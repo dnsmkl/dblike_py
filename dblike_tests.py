@@ -87,6 +87,28 @@ class DBTableTestCase(unittest.TestCase):
         self.assertEquals(len(rows), 1)
         self.assertEqual(list(rows)[0].row_id.value, 3)
 
+    def test_find_rows_skip_index(self):
+        x = DBTable(parent_schema=None, pk='row_id')
+        x.add_row({'row_id':1, 'val':'value1'})
+        x.add_row({'row_id':2, 'val':'value2'})
+        x.add_row({'row_id':3, 'val':'valueX'})
+        x.add_row({'row_id':4, 'val':'valueX'})
+
+        # Find one row, based on one column
+        rows = x.find_rows(['val'], ['value2'], True)
+        self.assertEquals(len(rows), 1)
+        self.assertEquals(list(rows)[0].row_id.value, 2)
+
+        # Find more then one row, based on one column
+        rows = x.find_rows(['val'], ['valueX'], True)
+        self.assertEquals(len(rows), 2)
+        self.assertItemsEqual([r.row_id.value for r in rows], [3,4])
+
+        # Find one row, based on two columns
+        rows = x.find_rows(['val', 'row_id'], ['valueX', 3], True)
+        self.assertEquals(len(rows), 1)
+        self.assertEqual(list(rows)[0].row_id.value, 3)
+
     def test_index(self):
         x = DBTable(parent_schema=None, pk='row_id')
         x.add_row({'row_id':1, 'val':'value1'})
