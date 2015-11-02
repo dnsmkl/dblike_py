@@ -204,7 +204,7 @@ class DBRow(object):
     def find_refs(self, table_name, column_names):
         """Find rows in other table, that refer to this row."""
         column_names = _tupleize(column_names)
-        table = getattr(self._schema, table_name)
+        table = self._schema[table_name]
         return table.find_rows(column_names, self.pk_value)
 
     def column_values(self, column_names):
