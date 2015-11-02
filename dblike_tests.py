@@ -176,6 +176,18 @@ class DBRowTestCase(unittest.TestCase):
         self.assertEquals(x.b.value, 'b1')
         self.assertEquals(x.c.value, 'c1')
 
+    def test_repr(self):
+        x = DBRow(parent_schema=None, pk='a b',
+            value_dict={'a':1, 'b':'1', 'c':'c1'}
+        )
+        self.assertEquals(repr(x),
+            "DBRow(None, 'a b', {"
+            "'a': DBValue(None, 1), "
+            "'c': DBValue(None, 'c1'), "
+            "'b': DBValue(None, '1')"
+            "})"
+        )
+
 
 class DBValueTestCase(unittest.TestCase):
 

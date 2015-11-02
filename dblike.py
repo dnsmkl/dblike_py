@@ -179,6 +179,9 @@ class DBRow(object):
         column_names = _tupleize(column_names)
         return tuple([self._dbvalue_dict[name].value for name in column_names])
 
+    def __repr__(self):
+        return 'DBRow({0._schema!r}, {0._pk!r}, {0._dbvalue_dict!r})'.format(self)
+
 
 class DBValue(object):
     """Contains value"""
