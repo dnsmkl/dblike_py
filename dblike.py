@@ -94,10 +94,27 @@ class DBTable(object):
         self._rows[new_pk] = new_row
 
     def find_rows(self, column_names, column_values, skip_index=False):
-        """Find rows based on supplied column/value filtering
+        """Find rows based on column value filter
 
-        By default building index and then using it.
-        (indexing can be disabled by skip_index parameter)
+        It is possible to filter by more then one column,
+        where column conditions are joined by using ``and``.
+
+        :optimization:
+            By default create index before searching, if it does not exist yet.
+            This can be disabled by `skip_index`.
+
+        :param column_names: Column names to be filtered on.
+        :param column_values: Column values (corresponding to `column_names`) to be searched.
+        :param skip_index: Disables index building optimization.
+
+        :type column_names:
+            `tuple`, `list` or `str`. (`str` is processed by `str.split`)
+        :type column_values:
+            `tuple`, `list` or `str`. (`str` is processed by `str.split`)
+        :type skip_index: `bool`.
+
+        :returns: Rows where all columns were matched.
+        :rtype: `set` of `DBRow`.
         """
         if not skip_index:
             if not self._index_exists(column_names):
