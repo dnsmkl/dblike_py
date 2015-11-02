@@ -5,7 +5,7 @@ from dblike import (TableDef, DBSchema, DBTable, DBRow, DBValue, _tupleize,
 
 class DBLikeTestCase(unittest.TestCase):
     """\
-    Integration tests of DBLike module
+    Integration tests of DBLike module.
     (tests that are not isolated to separate classes)
     """
 

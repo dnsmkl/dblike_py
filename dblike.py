@@ -28,7 +28,7 @@ from collections import namedtuple
 
 
 class DuplicateRowException(Exception):
-    """Duplicate row exception"""
+    """Duplicate row exception."""
 
     def __init__(self, existing_row, new_row):
         super(DuplicateRowException, self).__init__(
@@ -44,10 +44,10 @@ TableDef = namedtuple('TableDef', 'name pk')
 
 
 class DBSchema(object):
-    """Contains dict of DBTable"""
+    """Contains dict of DBTable."""
 
     def __init__(self, schema_def):
-        """Create DBSchema from list of TableDef"""
+        """Create DBSchema from list of TableDef."""
         self._tables = dict()
         assert isinstance(schema_def, list)
         for name, pk in schema_def:
@@ -60,16 +60,16 @@ class DBSchema(object):
 
 
 class DBTable(object):
-    """Contains dict of DBRow"""
+    """Contains dict of DBRow."""
 
     def __init__(self, parent_schema, pk):
-        """Construct empty DBTable
+        """Construct empty DBTable.
 
         :param parent_schema:
             Parent schema used by `DBRow.find_refs()` and `DBValue.deref()`.
             It may be ``None``, but then mentioned methods will fail.
-        :param pk: Primary key of the table
-        :type parent_schema: `DBSchema`
+        :param pk: Primary key of the table.
+        :type parent_schema: `DBSchema`.
         :type pk:
             `list` or `str`.
             `str` it is converted to `list` via `str.split`
@@ -80,11 +80,11 @@ class DBTable(object):
         self._indexes = dict()
 
     def add_row(self, value_dict):
-        """Add a row into the table
+        """Add a row into the table.
 
-        :param value_dict: map from column name to column value
-        :type value_dict: `dict`
-        :raises DuplicateRowException: in case pk for new row is already taken
+        :param value_dict: Map from column name to column value.
+        :type value_dict: `dict`.
+        :raises DuplicateRowException: In case pk for new row is already taken.
         """
         self._index_clear_all()
         new_row = DBRow(self._schema, self._pk, value_dict)
@@ -94,7 +94,7 @@ class DBTable(object):
         self._rows[new_pk] = new_row
 
     def find_rows(self, column_names, column_values, skip_index=False):
-        """Find rows based on column value filter
+        """Find rows based on column value filter.
 
         It is possible to filter by more then one column,
         where column conditions are joined by using ``and``.
@@ -128,7 +128,7 @@ class DBTable(object):
             if list(row.column_values(column_names)) == list(column_values)])
 
     def _index_create(self, column_names):
-        """Create index, to make finding rows more efficient"""
+        """Create index, to make finding rows more efficient."""
         column_names = _tupleize(column_names)
         new_index = dict()
         for row in self._rows.values():
@@ -139,7 +139,7 @@ class DBTable(object):
         self._indexes[column_names] = new_index
 
     def _index_find_rows(self, column_names, column_values):
-        """Find rows by using index"""
+        """Find rows by using index."""
         column_names = _tupleize(column_names)
         column_values = _tupleize(column_values)
         assert column_names in self._indexes,\
@@ -151,7 +151,7 @@ class DBTable(object):
             return set()
 
     def _index_exists(self, column_names):
-        """Check if index exists"""
+        """Check if index exists."""
         column_names = _tupleize(column_names)
         return column_names in self._indexes
 
@@ -184,7 +184,7 @@ class DBTable(object):
 
 
 class DBRow(object):
-    """Contains dict of DBValue"""
+    """Contains dict of DBValue."""
 
     def __init__(self, parent_schema, pk, value_dict):
         self._schema = parent_schema # needed for find_refs() and deref()
@@ -217,7 +217,7 @@ class DBRow(object):
 
 
 class DBValue(object):
-    """Contains value"""
+    """Contains value."""
 
     def __init__(self, parent_schema, value):
         self._schema = parent_schema # needed for deref()
@@ -237,9 +237,9 @@ class DBValue(object):
 
 
 def _tupleize(str_or_list):
-    """Make a tuple by modules standard rules
+    """Make a tuple by modules standard rules.
 
-    It should be used for column names and filtering values
+    It should be used for column names and filtering values.
     """
     if isinstance(str_or_list, str):
         return tuple(str_or_list.split())
