@@ -22,7 +22,7 @@ It will not be useful if real database is needed.
 - No optimizations
 """
 
-__version__ = '2.0.4'
+__version__ = '2.1.4'
 
 from collections import namedtuple
 
@@ -156,18 +156,18 @@ class DBRow(object):
     def __init__(self, parent_schema, pk, value_dict):
         self._schema = parent_schema # needed for find_refs() and deref()
         self._pk = pk
-        self._dbvalue_dict = dict()
+        self._columns = dict() # column values of the row
         for i, val in value_dict.iteritems():
-            self._dbvalue_dict[i] = DBValue(self._schema, val)
+            self._columns[i] = DBValue(self._schema, val)
 
     @property
     def pk_value(self):
         return self.column_values(self._pk)
 
     def __getattr__(self, column_name):
-        assert column_name in self._dbvalue_dict,\
-            '{} not in {}'.format(column_name, self._dbvalue_dict)
-        return self._dbvalue_dict[column_name]
+        assert column_name in self._columns,\
+            '{} not in {}'.format(column_name, self._columns)
+        return self._columns[column_name]
 
     def find_refs(self, table_name, column_names):
         """Find rows in other table, that refer to this row"""
@@ -177,10 +177,10 @@ class DBRow(object):
 
     def column_values(self, column_names):
         column_names = _tupleize(column_names)
-        return tuple([self._dbvalue_dict[name].value for name in column_names])
+        return tuple([self._columns[name].value for name in column_names])
 
     def __repr__(self):
-        return 'DBRow({0._schema!r}, {0._pk!r}, {0._dbvalue_dict!r})'.format(self)
+        return 'DBRow({0._schema!r}, {0._pk!r}, {0._columns!r})'.format(self)
 
 
 class DBValue(object):
