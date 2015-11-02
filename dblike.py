@@ -202,12 +202,13 @@ class DBRow(object):
         return self._columns[column_name]
 
     def find_refs(self, table_name, column_names):
-        """Find rows in other table, that refer to this row"""
+        """Find rows in other table, that refer to this row."""
         column_names = _tupleize(column_names)
         table = getattr(self._schema, table_name)
         return table.find_rows(column_names, self.pk_value)
 
     def column_values(self, column_names):
+        """Return column values."""
         column_names = _tupleize(column_names)
         return tuple([self._columns[name].value for name in column_names])
 
