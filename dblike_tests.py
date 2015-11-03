@@ -221,6 +221,16 @@ class DBValueTestCase(unittest.TestCase):
         x = DBValue(parent_schema=None, value='ThisIsValue')
         self.assertEquals(str(x), "DBValue(None, 'ThisIsValue')")
 
+    def test_nonzero(self):
+        x = DBValue(parent_schema=None, value='ThisIsValue')
+        # True
+        self.assertTrue(DBValue(parent_schema=None, value='ThisIsValue'))
+        self.assertTrue(DBValue(parent_schema=None, value=1))
+        # False
+        self.assertFalse(DBValue(parent_schema=None, value=0))
+        self.assertFalse(DBValue(parent_schema=None, value=None))
+        self.assertFalse(DBValue(parent_schema=None, value=''))
+
 
 class OtherTestCase(unittest.TestCase):
 

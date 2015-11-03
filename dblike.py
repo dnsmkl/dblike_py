@@ -256,6 +256,9 @@ class DBValue(object):
         table = self._schema[table_name]
         return table[self.value]
 
+    def __nonzero__(self): return self.__bool__()
+    def __bool__(self): return bool(self._value)
+
     def __repr__(self):
         return 'DBValue({0._schema!r}, {0._value!r})'.format(self)
 
