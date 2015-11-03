@@ -81,7 +81,7 @@ class DBTable(object):
     def add_row(self, value_dict):
         """Add a row into the table.
 
-        :param value_dict: Map from column name to column value.
+        :param value_dict: Values to be stored. Map from column names to values.
         :type value_dict: `dict`.
         :raises DuplicateRowException: In case pk for new row is already taken.
         """
@@ -123,6 +123,7 @@ class DBTable(object):
             return self._walking_find_rows(column_names, column_values)
 
     def _walking_find_rows(self, column_names, column_values):
+        """Find rows by iterating through all elements."""
         return set([row for row in self._rows.values()
             if list(row.column_values(column_names)) == list(column_values)])
 
@@ -186,6 +187,19 @@ class DBRow(object):
     """Contains dict of DBValue."""
 
     def __init__(self, parent_schema, pk, value_dict):
+        """Construct DBRow with supplied values.
+
+        Should be called only from :class:`DBTable`.
+
+        :param parent_schema:
+            Parent schema used by `DBRow.find_refs()` and `DBValue.deref()`.
+            It may be ``None``, but then mentioned methods will fail.
+        :param pk: Primary key column names.
+        :param value_dict: Values to be stored. Map from column names to values.
+        :type pk:
+            `tuple`, `list` or `str`. (`str` is processed by `str.split`)
+        :type value_dict: `dict`.
+        """
         self._schema = parent_schema # needed for find_refs() and deref()
         self._pk = pk
         self._columns = dict() # column values of the row
@@ -194,6 +208,10 @@ class DBRow(object):
 
     @property
     def pk_value(self):
+        """Get primary key column values
+
+        Should be called only from :class:`DBTable`.
+        """
         return self.column_values(self._pk)
 
     def __getattr__(self, column_name):
@@ -202,13 +220,18 @@ class DBRow(object):
         return self._columns[column_name]
 
     def find_refs(self, table_name, column_names):
-        """Find rows in other table, that refer to this row."""
+        """Find rows in other table, that refer to this row.
+
+        :param table_name: Table to be search.
+        :param column_names:
+            Columns to be compared for match with `self.pk_value`.
+        """
         column_names = _tupleize(column_names)
         table = self._schema[table_name]
         return table.find_rows(column_names, self.pk_value)
 
     def column_values(self, column_names):
-        """Return column values."""
+        """Return plain column values (without DBValue wrappers)."""
         column_names = _tupleize(column_names)
         return tuple([self._columns[name].value for name in column_names])
 
