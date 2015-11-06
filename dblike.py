@@ -49,7 +49,6 @@ class DBSchema(object):
     def __init__(self, schema_def):
         """Create DBSchema from list of TableDef."""
         self._tables = dict()
-        assert isinstance(schema_def, list)
         for name, pk in schema_def:
             self._tables[name] = _DBTable(self, pk)
 
