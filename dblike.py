@@ -5,9 +5,9 @@ In the end it is ORM like interface to some nested dictionaries.
 
 This module provides classes, that loosely correspond to database concepts:
 - DBSchema - dict of tables
-- DBTable  - dict of rows
-- DBRow    - dict of values
-- DBValue
+- _DBTable  - dict of rows
+- _DBRow    - dict of values
+- _DBValue
 
 Specific situation, when it can be useful:
 - Data is structured similarly as DB (e.g. XML dump of database schema).
@@ -44,14 +44,14 @@ TableDef = namedtuple('TableDef', 'name pk')
 
 
 class DBSchema(object):
-    """Contains dict of DBTable."""
+    """Contains dict of _DBTable."""
 
     def __init__(self, schema_def):
         """Create DBSchema from list of TableDef."""
         self._tables = dict()
         assert isinstance(schema_def, list)
         for name, pk in schema_def:
-            self._tables[name] = DBTable(self, pk)
+            self._tables[name] = _DBTable(self, pk)
 
     # Forward some methods to internal dict.
     def __getattr__(self, table_name): return self._tables[table_name]
@@ -59,19 +59,21 @@ class DBSchema(object):
     def __contains__(self, table_name): return table_name in self._tables
 
 
-class DBTable(object):
-    """Contains dict of DBRow."""
+class _DBTable(object):
+    """Contains dict of _DBRow.
+
+    Public methods of this class, belong to the interface of the module,
+    but class it self should be instantiated only by `DBSchema`.
+    """
 
     def __init__(self, parent_schema, pk):
         """Construct empty DBTable.
 
         :param parent_schema:
-            Parent schema used by `DBRow.find_refs()` and `DBValue.deref()`.
-            It may be ``None``, but then mentioned methods will fail.
+            Parent schema used by `_DBRow.find_refs()` and `_DBValue.deref()`.
         :param pk: Primary key column names.
         :type parent_schema: `DBSchema`.
-        :type pk:
-            `tuple`, `list` or `str`. (`str` is processed by `str.split`)
+        :type pk: `tuple`, `list` or `str`. (`str` is processed by `str.split`)
         """
         self._schema = parent_schema # needed for find_refs() and deref()
         self._pk = pk
@@ -81,13 +83,13 @@ class DBTable(object):
     def add_row(self, value_dict):
         """Add a row into the table.
 
-        :param value_dict: Values to be stored. Map from column names to values.
+        :param value_dict: Values to be stored. Names->value map of columns.
         :type value_dict: `dict`.
         :raises DuplicateRowException: In case pk for new row is already taken.
         """
         self._index_clear_all()
-        new_row = DBRow(self._schema, self._pk, value_dict)
-        new_pk = new_row.pk_value
+        new_row = _DBRow(self._schema, self._pk, value_dict)
+        new_pk = new_row._pk_value
         if new_pk in self._rows:
             raise DuplicateRowException(self._rows[new_pk], new_row)
         self._rows[new_pk] = new_row
@@ -113,7 +115,7 @@ class DBTable(object):
         :type skip_index: `bool`.
 
         :returns: Rows where all columns were matched.
-        :rtype: `set` of `DBRow`.
+        :rtype: `set` of `_DBRow`.
         """
         if not skip_index:
             if not self._index_exists(column_names):
@@ -183,34 +185,34 @@ class DBTable(object):
         return self._rows.values()
 
 
-class DBRow(object):
-    """Contains dict of DBValue."""
+class _DBRow(object):
+    """Contains dict of _DBValue.
+
+    Public methods of this class, belong to the interface of the module,
+    but class it self should be instantiated only by `_DBTable`.
+    """
 
     def __init__(self, parent_schema, pk, value_dict):
-        """Construct DBRow with supplied values.
-
-        Should be called only from :class:`DBTable`.
+        """Construct _DBRow with supplied values.
 
         :param parent_schema:
-            Parent schema used by `DBRow.find_refs()` and `DBValue.deref()`.
-            It may be ``None``, but then mentioned methods will fail.
+            Parent schema used by `_DBRow.find_refs()` and `_DBValue.deref()`.
         :param pk: Primary key column names.
-        :param value_dict: Values to be stored. Map from column names to values.
-        :type pk:
-            `tuple`, `list` or `str`. (`str` is processed by `str.split`)
+        :param value_dict: Values to be stored. Names->value map of columns.
+        :type pk: `tuple`, `list` or `str`. (`str` is processed by `str.split`)
         :type value_dict: `dict`.
         """
         self._schema = parent_schema # needed for find_refs() and deref()
         self._pk = pk
         self._columns = dict() # column values of the row
         for i, val in value_dict.iteritems():
-            self._columns[i] = DBValue(self._schema, val)
+            self._columns[i] = _DBValue(self._schema, val)
 
     @property
-    def pk_value(self):
+    def _pk_value(self):
         """Get primary key column values
 
-        Should be called only from :class:`DBTable`.
+        Should be called only from :class:`_DBTable`.
         """
         return self.column_values(self._pk)
 
@@ -224,23 +226,27 @@ class DBRow(object):
 
         :param table_name: Table to be search.
         :param column_names:
-            Columns to be compared for match with `self.pk_value`.
+            Columns to be compared for match with `self._pk_value`.
         """
         column_names = _tupleize(column_names)
         table = self._schema[table_name]
-        return table.find_rows(column_names, self.pk_value)
+        return table.find_rows(column_names, self._pk_value)
 
     def column_values(self, column_names):
-        """Return plain column values (without DBValue wrappers)."""
+        """Return plain column values (without _DBValue wrappers)."""
         column_names = _tupleize(column_names)
         return tuple([self._columns[name].value for name in column_names])
 
     def __repr__(self):
-        return 'DBRow({0._schema!r}, {0._pk!r}, {0._columns!r})'.format(self)
+        return '_DBRow({0._schema!r}, {0._pk!r}, {0._columns!r})'.format(self)
 
 
-class DBValue(object):
-    """Contains value."""
+class _DBValue(object):
+    """Contains value.
+
+    Public methods of this class, belong to the interface of the module,
+    but class it self should be instantiated only by `_DBRow`.
+    """
 
     def __init__(self, parent_schema, value):
         self._schema = parent_schema # needed for deref()
@@ -260,7 +266,7 @@ class DBValue(object):
     def __bool__(self): return bool(self._value)
 
     def __repr__(self):
-        return 'DBValue({0._schema!r}, {0._value!r})'.format(self)
+        return '_DBValue({0._schema!r}, {0._value!r})'.format(self)
 
 
 def _tupleize(str_or_list):
