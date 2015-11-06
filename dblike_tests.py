@@ -1,5 +1,6 @@
 import unittest
-from dblike import (TableDef, DBSchema, _DBTable, _DBRow, _DBValue, _tupleize,
+from dblike import (TableDef, DBSchema, _DBTable, _DBRow, _DBValue,
+    _tupleize_cols,
     DuplicateRowException)
 
 
@@ -115,18 +116,18 @@ class DBTableTestCase(unittest.TestCase):
         x.add_row({'row_id':2, 'val':'value2'})
         x.add_row({'row_id':3, 'val':'valueX'})
         x.add_row({'row_id':4, 'val':'valueX'})
-        self.assertFalse(x._index_exists('val'))
+        self.assertFalse(x._index_exists(('val',)))
         self.assertFalse(x._index_exists('something else'))
-        x._index_create('val')
-        self.assertTrue(x._index_exists('val'))
+        x._index_create(('val',))
+        self.assertTrue(x._index_exists(('val',)))
         self.assertFalse(x._index_exists('something else'))
-        rows = x._index_find_rows('val', 'valueX')
+        rows = x._index_find_rows(('val',), ('valueX',))
         self.assertEquals(rows, set([x[3], x[4]]))
-        no_rows = x._index_find_rows('val', 'notvalue')
+        no_rows = x._index_find_rows(('val',), ('notvalue',))
         for row in no_rows:
             self.assertTrue(False) # no iterations expected
         x._index_clear_all()
-        self.assertFalse(x._index_exists('val'))
+        self.assertFalse(x._index_exists(('val',)))
 
     def test_contains_multikey(self):
         x = _DBTable(parent_schema=None, pk='row_id m')
@@ -234,10 +235,10 @@ class DBValueTestCase(unittest.TestCase):
 
 class OtherTestCase(unittest.TestCase):
 
-    def test_tupulize(self):
-        self.assertEquals(_tupleize('1'), tuple(['1']))
-        self.assertEquals(_tupleize('a bc'), tuple(['a', 'bc']))
-        self.assertEquals(_tupleize(['a', 'bc']), tuple(['a', 'bc']))
+    def test_tupulize_cols(self):
+        self.assertEquals(_tupleize_cols('1'), tuple(['1']))
+        self.assertEquals(_tupleize_cols('a bc'), tuple(['a', 'bc']))
+        self.assertEquals(_tupleize_cols(['a', 'bc']), tuple(['a', 'bc']))
 
 
 def run_tests():

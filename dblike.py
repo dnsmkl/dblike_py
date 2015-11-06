@@ -79,6 +79,12 @@ class _DBTable(object):
         self._rows = dict()
         self._indexes = dict()
 
+    # Forward some methods to internal dict.
+    def __contains__(self, row_id): return _tupleize_row_id(row_id) in self._rows
+    def __getitem__(self, row_id): return self._rows[_tupleize_row_id(row_id)]
+    def iteritems(self): return ((_detup_row_id(k), v) for k,v in self._rows.iteritems())
+    def values(self): return self._rows.values()
+
     def add_row(self, value_dict):
         """Add a row into the table.
 
@@ -116,6 +122,8 @@ class _DBTable(object):
         :returns: Rows where all columns were matched.
         :rtype: `set` of `_DBRow`.
         """
+        column_names = _tupleize_cols(column_names)
+        column_values = _tupleize_cols(column_values)
         if not skip_index:
             if not self._index_exists(column_names):
                 self._index_create(column_names)
@@ -130,7 +138,6 @@ class _DBTable(object):
 
     def _index_create(self, column_names):
         """Create index, to make finding rows more efficient."""
-        column_names = _tupleize(column_names)
         new_index = dict()
         for row in self._rows.values():
             idx_key = row.column_values(column_names)
@@ -141,10 +148,6 @@ class _DBTable(object):
 
     def _index_find_rows(self, column_names, column_values):
         """Find rows by using index."""
-        column_names = _tupleize(column_names)
-        column_values = _tupleize(column_values)
-        assert column_names in self._indexes,\
-            'Index on "{}" does not exist'.format(column_names)
         index = self._indexes[column_names]
         if column_values in index:
             return index[tuple(column_values)]
@@ -153,35 +156,12 @@ class _DBTable(object):
 
     def _index_exists(self, column_names):
         """Check if index exists."""
-        column_names = _tupleize(column_names)
         return column_names in self._indexes
 
     def _index_clear_all(self):
         for index in self._indexes.values():
             index.clear()
         self._indexes.clear()
-
-    def __getitem__(self, id):
-        assert not(isinstance(id, tuple) and len(id) == 1)
-        if not isinstance(id, tuple):
-            id = tuple([id])
-        return self._rows[id]
-
-    def __contains__(self, id):
-        if not isinstance(id, tuple):
-            id = tuple([id])
-        return id in self._rows
-
-    def iteritems(self):
-        for k, v in self._rows.iteritems():
-            assert isinstance(k, tuple)
-            if len(k) == 1:
-                yield (k[0], v)
-            else:
-                yield (k, v)
-
-    def values(self):
-        return self._rows.values()
 
 
 class _DBRow(object):
@@ -207,18 +187,8 @@ class _DBRow(object):
         for i, val in value_dict.iteritems():
             self._columns[i] = _DBValue(self._schema, val)
 
-    @property
-    def _pk_value(self):
-        """Get primary key column values
-
-        Should be called only from :class:`_DBTable`.
-        """
-        return self.column_values(self._pk)
-
-    def __getattr__(self, column_name):
-        assert column_name in self._columns,\
-            '{} not in {}'.format(column_name, self._columns)
-        return self._columns[column_name]
+    def __getattr__(self, column_name): return self._columns[column_name]
+    def __repr__(self): return '_DBRow({0._schema!r}, {0._pk!r}, {0._columns!r})'.format(self)
 
     def find_refs(self, table_name, column_names):
         """Find rows in other table, that refer to this row.
@@ -227,17 +197,22 @@ class _DBRow(object):
         :param column_names:
             Columns to be compared for match with `self._pk_value`.
         """
-        column_names = _tupleize(column_names)
+        column_names = _tupleize_cols(column_names)
         table = self._schema[table_name]
         return table.find_rows(column_names, self._pk_value)
 
     def column_values(self, column_names):
         """Return plain column values (without _DBValue wrappers)."""
-        column_names = _tupleize(column_names)
+        column_names = _tupleize_cols(column_names)
         return tuple([self._columns[name].value for name in column_names])
 
-    def __repr__(self):
-        return '_DBRow({0._schema!r}, {0._pk!r}, {0._columns!r})'.format(self)
+    @property
+    def _pk_value(self):
+        """Get primary key column values
+
+        Should be called only from :class:`_DBTable`.
+        """
+        return self.column_values(self._pk)
 
 
 class _DBValue(object):
@@ -251,6 +226,10 @@ class _DBValue(object):
         self._schema = parent_schema # needed for deref()
         self._value = value
 
+    def __bool__(self): return bool(self._value)
+    def __nonzero__(self): return self.__bool__()
+    def __repr__(self): return '_DBValue({0._schema!r}, {0._value!r})'.format(self)
+
     @property
     def value(self):
         return self._value
@@ -261,22 +240,22 @@ class _DBValue(object):
         table = self._schema[table_name]
         return table[self.value]
 
-    def __nonzero__(self): return self.__bool__()
-    def __bool__(self): return bool(self._value)
 
-    def __repr__(self):
-        return '_DBValue({0._schema!r}, {0._value!r})'.format(self)
+def _tupleize_cols(cols):
+    """Modules standard preprocessing of column names or values."""
+    return tuple(cols.split()) if isinstance(cols, str) else tuple(cols)
 
 
-def _tupleize(str_or_list):
-    """Make a tuple by modules standard rules.
+def _tupleize_row_id(row_id):
+    """Modules standard preprocessing of `row_id`."""
+    assert not(isinstance(row_id, tuple) and len(row_id) == 1)
+    return tuple([row_id]) if not isinstance(row_id, tuple) else row_id
 
-    It should be used for column names and filtering values.
-    """
-    if isinstance(str_or_list, str):
-        return tuple(str_or_list.split())
-    else:
-        return tuple(str_or_list)
+
+def _detup_row_id(row_id):
+    """Revert modules standard preprocessing of `row_id`."""
+    assert isinstance(row_id, tuple)
+    return row_id[0] if len(row_id) == 1 else row_id
 
 
 if __name__ == '__main__':
