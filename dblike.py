@@ -20,6 +20,7 @@ It will not be useful if real database is needed.
 - No data types
 - No transactions
 - No optimizations
+- No data updates
 """
 
 
