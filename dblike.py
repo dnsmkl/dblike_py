@@ -261,7 +261,10 @@ def _tupleize_row_id(row_id):
 
 
 def _detup_row_id(row_id):
-    """Revert modules standard preprocessing of `row_id`."""
+    """Revert modules standard preprocessing of `row_id`.
+
+    Opposite of `_tupleize_row_id`.
+    """
     assert isinstance(row_id, tuple)
     return row_id[0] if len(row_id) == 1 else row_id
 
