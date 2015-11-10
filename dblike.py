@@ -22,7 +22,9 @@ It will not be useful if real database is needed.
 - No optimizations
 """
 
-__version__ = '2.1.4'
+
+__version__ = '2.1.5'
+
 
 from collections import namedtuple
 
@@ -50,7 +52,7 @@ class DBSchema(object):
         """Create DBSchema from list of TableDef."""
         self._tables = dict()
         for name, pk in schema_def:
-            self._tables[name] = _DBTable(self, pk)
+            self._tables[name] = _DBTable(self, name, pk)
 
     # Forward some methods to internal dict.
     def __getattr__(self, table_name): return self._tables[table_name]
@@ -65,7 +67,7 @@ class _DBTable(object):
     but class it self should be instantiated only by `DBSchema`.
     """
 
-    def __init__(self, parent_schema, pk):
+    def __init__(self, parent_schema, name, pk):
         """Construct empty DBTable.
 
         :param parent_schema:
@@ -75,6 +77,7 @@ class _DBTable(object):
         :type pk: `tuple`, `list` or `str`. (`str` is processed by `str.split`)
         """
         self._schema = parent_schema # needed for find_refs() and deref()
+        self._name = name # needed only for debug info
         self._pk = pk
         self._rows = dict()
         self._indexes = dict()

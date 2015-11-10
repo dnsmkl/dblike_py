@@ -57,17 +57,17 @@ class DBSchemaTestCase(unittest.TestCase):
 class DBTableTestCase(unittest.TestCase):
 
     def test_getitem(self):
-        x = _DBTable(parent_schema=None, pk='row_id')
+        x = _DBTable(parent_schema=None, name='x', pk='row_id')
         x.add_row({'row_id':1, 'val':'valueX'})
         self.assertEquals(x[1].val.value, 'valueX')
 
     def test_getitem_multivalued_pk(self):
-        x = _DBTable(parent_schema=None, pk='row_id id_modif')
+        x = _DBTable(parent_schema=None, name='x', pk='row_id id_modif')
         x.add_row({'row_id':1, 'id_modif':100, 'val':'valueX'})
         self.assertEquals(x[1,100].val.value, 'valueX')
 
     def test_find_rows(self):
-        x = _DBTable(parent_schema=None, pk='row_id')
+        x = _DBTable(parent_schema=None, name='x', pk='row_id')
         x.add_row({'row_id':1, 'val':'value1'})
         x.add_row({'row_id':2, 'val':'value2'})
         x.add_row({'row_id':3, 'val':'valueX'})
@@ -89,7 +89,7 @@ class DBTableTestCase(unittest.TestCase):
         self.assertEqual(list(rows)[0].row_id.value, 3)
 
     def test_find_rows_skip_index(self):
-        x = _DBTable(parent_schema=None, pk='row_id')
+        x = _DBTable(parent_schema=None, name='x', pk='row_id')
         x.add_row({'row_id':1, 'val':'value1'})
         x.add_row({'row_id':2, 'val':'value2'})
         x.add_row({'row_id':3, 'val':'valueX'})
@@ -111,7 +111,7 @@ class DBTableTestCase(unittest.TestCase):
         self.assertEqual(list(rows)[0].row_id.value, 3)
 
     def test_index(self):
-        x = _DBTable(parent_schema=None, pk='row_id')
+        x = _DBTable(parent_schema=None, name='x', pk='row_id')
         x.add_row({'row_id':1, 'val':'value1'})
         x.add_row({'row_id':2, 'val':'value2'})
         x.add_row({'row_id':3, 'val':'valueX'})
@@ -130,37 +130,37 @@ class DBTableTestCase(unittest.TestCase):
         self.assertFalse(x._index_exists(('val',)))
 
     def test_contains_multikey(self):
-        x = _DBTable(parent_schema=None, pk='row_id m')
+        x = _DBTable(parent_schema=None, name='x', pk='row_id m')
         x.add_row({'row_id':1, 'm':100, 'val':'value1'})
         self.assertTrue((1, 100) in x)
 
     def test_contains(self):
-        x = _DBTable(parent_schema=None, pk='row_id')
+        x = _DBTable(parent_schema=None, name='x', pk='row_id')
         x.add_row({'row_id':1, 'val':'value1'})
         self.assertTrue(1 in x)
 
     def test_iteritems(self):
-        x = _DBTable(parent_schema=None, pk='row_id')
+        x = _DBTable(parent_schema=None, name='x', pk='row_id')
         x.add_row({'row_id':1, 'val':'value1'})
         for k,v in x.iteritems():
             self.assertEquals(k, 1)
             self.assertEquals(v.val.value, 'value1')
 
     def test_iteritems_multikey(self):
-        x = _DBTable(parent_schema=None, pk='row_id m')
+        x = _DBTable(parent_schema=None, name='x', pk='row_id m')
         x.add_row({'row_id':1, 'm':100, 'val':'value1'})
         for k,v in x.iteritems():
             self.assertEquals(k, (1, 100))
             self.assertEquals(v.val.value, 'value1')
 
     def test_values(self):
-        x = _DBTable(parent_schema=None, pk='row_id')
+        x = _DBTable(parent_schema=None, name='x', pk='row_id')
         x.add_row({'row_id':1, 'val':'value1'})
         for v in x.values():
             self.assertEquals(v.val.value, 'value1')
 
     def test_duplicate_check(self):
-        x = _DBTable(parent_schema=None, pk='row_id')
+        x = _DBTable(parent_schema=None, name='x', pk='row_id')
         x.add_row({'row_id':1, 'val':'value1'})
         with self.assertRaises(DuplicateRowException):
             x.add_row({'row_id':1, 'val':'value1'})
