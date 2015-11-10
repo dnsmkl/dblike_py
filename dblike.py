@@ -24,7 +24,7 @@ It will not be useful if real database is needed.
 """
 
 
-__version__ = '2.1.5'
+__version__ = '2.2.0'
 
 
 from collections import namedtuple
@@ -33,10 +33,13 @@ from collections import namedtuple
 class DuplicateRowException(Exception):
     """Duplicate row exception."""
 
-    def __init__(self, existing_row, new_row):
+    def __init__(self, table_name, existing_row, new_row):
         super(DuplicateRowException, self).__init__(
-            'Existing: {}; New: {}'.format(existing_row, new_row)
+            '{} already contains: {}; New row: {}'.format(
+                table_name, existing_row, new_row
+            )
         )
+        self.table_name = table_name
         self.existing_row = existing_row
         self.new_row = new_row
 
@@ -100,7 +103,8 @@ class _DBTable(object):
         new_row = _DBRow(self._schema, self._pk, value_dict)
         new_pk = new_row._pk_value
         if new_pk in self._rows:
-            raise DuplicateRowException(self._rows[new_pk], new_row)
+            existing_row = self._rows[new_pk]
+            raise DuplicateRowException(self._name, existing_row, new_row)
         self._rows[new_pk] = new_row
 
     def find_rows(self, column_names, column_values, skip_index=False):

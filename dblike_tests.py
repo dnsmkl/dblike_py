@@ -162,8 +162,9 @@ class DBTableTestCase(unittest.TestCase):
     def test_duplicate_check(self):
         x = _DBTable(parent_schema=None, name='x', pk='row_id')
         x.add_row({'row_id':1, 'val':'value1'})
-        with self.assertRaises(DuplicateRowException):
+        with self.assertRaises(DuplicateRowException) as cm:
             x.add_row({'row_id':1, 'val':'value1'})
+        self.assertEqual(cm.exception.table_name, 'x')
 
 
 class DBRowTestCase(unittest.TestCase):
