@@ -24,7 +24,7 @@ It will not be useful if real database is needed.
 """
 
 
-__version__ = '2.2.0'
+__version__ = '2.2.1'
 
 
 from collections import namedtuple
@@ -89,7 +89,7 @@ class _DBTable(object):
     # Forward some methods to internal dict.
     def __contains__(self, row_id): return _tupleize_row_id(row_id) in self._rows
     def __getitem__(self, row_id): return self._rows[_tupleize_row_id(row_id)]
-    def iteritems(self): return ((_detup_row_id(k), v) for k,v in self._rows.iteritems())
+    def iteritems(self): return ((_detup_row_id(k), v) for k, v in self._rows.iteritems())
     def values(self): return self._rows.values()
 
     def add_row(self, value_dict):
