@@ -24,7 +24,7 @@ It will not be useful if real database is needed.
 """
 
 
-__version__ = '2.2.1'
+__version__ = '2.3.0'
 
 
 from collections import namedtuple
@@ -42,6 +42,47 @@ class DuplicateRowException(Exception):
         self.table_name = table_name
         self.existing_row = existing_row
         self.new_row = new_row
+
+
+class RowKeyError(KeyError):
+    """Row not found exception."""
+
+    def __init__(self, trg):
+        """Save info for debugging not found row.
+
+        :param trg: 3-tuple of missing row. (table, pk, key)
+        """
+        super(RowKeyError, self).__init__(trg[2])
+        self._trg = trg
+
+    def __repr__(self):
+        return 'RowKeyError({}, {}, {})'.format(*self._trg)
+
+    def __str__(self):
+        return repr(self)
+
+
+class BrokenReferenceError(RowKeyError):
+    """Row not found during dereferencing."""
+
+    def __init__(self, src, col, trg):
+        """Save all info for debugging broken reference.
+
+        3-tuples for src & trg should be (table, pk, key).
+        :param src: 3-tuple of `DBRow` containing broken reference.
+        :param col: name of `src` column containing broken reference.
+        :param trg: 3-tuple of missing `DBRow`.
+        """
+        self._src = src
+        self._col = col
+        super(BrokenReferenceError, self).__init__(trg)
+
+    def __repr__(self):
+        return 'BrokenReferenceError(src={}, col={}, trg={})'.format(
+            self._src, self._col, self._trg)
+
+    def __str__(self):
+        return repr(self)
 
 
 # Table definition used by DBSchema.
@@ -88,9 +129,20 @@ class _DBTable(object):
 
     # Forward some methods to internal dict.
     def __contains__(self, row_id): return _tupleize_row_id(row_id) in self._rows
-    def __getitem__(self, row_id): return self._rows[_tupleize_row_id(row_id)]
     def iteritems(self): return ((_detup_row_id(k), v) for k, v in self._rows.iteritems())
     def values(self): return self._rows.values()
+
+    def __getitem__(self, row_id):
+        """Return row by its row_id/pk_value.
+
+        :param row_id: is pk value of the row to be returned.
+        :returns: `_DBRow`
+        :raises RowKeyError:
+        """
+        try:
+            return self._rows[_tupleize_row_id(row_id)]
+        except KeyError as e:
+            raise RowKeyError((self._name, self._pk, e.args[0]))
 
     def add_row(self, value_dict):
         """Add a row into the table.
@@ -100,7 +152,7 @@ class _DBTable(object):
         :raises DuplicateRowException: In case pk for new row is already taken.
         """
         self._index_clear_all()
-        new_row = _DBRow(self._schema, self._pk, value_dict)
+        new_row = _DBRow(self._schema, self, self._pk, value_dict)
         new_pk = new_row._pk_value
         if new_pk in self._rows:
             existing_row = self._rows[new_pk]
@@ -179,7 +231,7 @@ class _DBRow(object):
     but class it self should be instantiated only by `_DBTable`.
     """
 
-    def __init__(self, parent_schema, pk, value_dict):
+    def __init__(self, parent_schema, table, pk, value_dict):
         """Construct _DBRow with supplied values.
 
         :param parent_schema:
@@ -190,10 +242,11 @@ class _DBRow(object):
         :type value_dict: `dict`.
         """
         self._schema = parent_schema # needed for find_refs() and deref()
+        self._up = table # needed for debugging info.
         self._pk = pk
         self._columns = dict() # column values of the row
         for i, val in value_dict.iteritems():
-            self._columns[i] = _DBValue(self._schema, val)
+            self._columns[i] = _DBValue(self._schema, self, i, val)
 
     def __getattr__(self, column_name): return self._columns[column_name]
     def __repr__(self): return '_DBRow({0._schema!r}, {0._pk!r}, {0._columns!r})'.format(self)
@@ -230,8 +283,10 @@ class _DBValue(object):
     but class it self should be instantiated only by `_DBRow`.
     """
 
-    def __init__(self, parent_schema, value):
+    def __init__(self, parent_schema, parent_row, colname, value):
         self._schema = parent_schema # needed for deref()
+        self._up = parent_row # needed for debugging info.
+        self._colname = colname  # needed for debugging info.
         self._value = value
 
     def __bool__(self): return bool(self._value)
@@ -243,10 +298,19 @@ class _DBValue(object):
         return self._value
 
     def deref(self, table_name):
-        """Retrieve row, by using this value as key in the supplied table"""
+        """Retrieve row, by using self.value as key in the supplied table.
+
+        :param table_name: name of the table in which to try to dereference.
+        :returns: `_DBRow` that had same pk_value as our self.value.
+        :raises BrokenReferenceError:
+        """
         assert self.value
         table = self._schema[table_name]
-        return table[self.value]
+        try:
+            return table[self.value]
+        except RowKeyError as e:
+            src_3id = (self._up._up._name, self._up._pk, self._up._pk_value)
+            raise BrokenReferenceError(src_3id, self._colname, e._trg)
 
 
 def _tupleize_cols(cols):

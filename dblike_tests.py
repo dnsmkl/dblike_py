@@ -1,7 +1,7 @@
 import unittest
 from dblike import (TableDef, DBSchema, _DBTable, _DBRow, _DBValue,
     _tupleize_cols,
-    DuplicateRowException)
+    DuplicateRowException, RowKeyError, BrokenReferenceError)
 
 
 class DBLikeTestCase(unittest.TestCase):
@@ -19,12 +19,22 @@ class DBLikeTestCase(unittest.TestCase):
         s.owners.add_row({'owner_id':1, 'owner_name':'Tom'})
         s.items.add_row({'item_id':1, 'name':'chair', 'owner_id':1})
         s.items.add_row({'item_id':2, 'name':'house', 'owner_id':1})
+        s.items.add_row({'item_id':3, 'name':'mixer', 'owner_id':2})
         self.s = s
 
     def test_value_deref(self):
         s = self.s
         owner_id = s.items[1].owner_id
         self.assertEqual(owner_id.deref('owners').owner_name.value, 'Tom')
+
+    def test_broken_reference_error(self):
+        s = self.s
+        owner_id = s.items[3].owner_id
+        with self.assertRaises(BrokenReferenceError) as cm:
+            owner_id.deref('owners')
+        self.assertEqual(str(cm.exception),
+            "BrokenReferenceError(src=('items', 'item_id', (3,)),"+
+            " col=owner_id, trg=('owners', 'owner_id', (2,)))")
 
     def test_row_find_refs(self):
         s = self.s
@@ -60,6 +70,13 @@ class DBTableTestCase(unittest.TestCase):
         x = _DBTable(parent_schema=None, name='x', pk='row_id')
         x.add_row({'row_id':1, 'val':'valueX'})
         self.assertEqual(x[1].val.value, 'valueX')
+
+    def test_getitem_key_error(self):
+        x = _DBTable(parent_schema=None, name='x', pk='row_id')
+        x.add_row({'row_id':1, 'val':'valueX'})
+        with self.assertRaises(RowKeyError) as cm:
+            x[2]
+        self.assertEqual(str(cm.exception), 'RowKeyError(x, row_id, (2,))')
 
     def test_getitem_multivalued_pk(self):
         x = _DBTable(parent_schema=None, name='x', pk='row_id id_modif')
@@ -170,12 +187,12 @@ class DBTableTestCase(unittest.TestCase):
 class DBRowTestCase(unittest.TestCase):
 
     def test_getattr(self):
-        x = _DBRow(parent_schema=None, pk='k', value_dict={'k':'a1', 'b':'b1'})
+        x = _DBRow(parent_schema=None, table=None, pk='k', value_dict={'k':'a1', 'b':'b1'})
         self.assertEqual(x.k.value, 'a1')
         self.assertEqual(x.b.value, 'b1')
 
     def test_column_values(self):
-        x = _DBRow(parent_schema=None,
+        x = _DBRow(parent_schema=None, table=None,
                     pk=('k'),
                     value_dict={'k':'a1', 'b':'b1', 'c': 'c1', 'd': 'd1'}
                 )
@@ -193,7 +210,7 @@ class DBRowTestCase(unittest.TestCase):
         self.assertEqual(x.column_values('b c b'), ('b1', 'c1', 'b1'))
 
     def test_multivalued_pk(self):
-        x = _DBRow(parent_schema=None, pk='a b',
+        x = _DBRow(parent_schema=None, table=None, pk='a b',
             value_dict={'a':'a1', 'b':'b1', 'c':'c1'}
         )
         self.assertEqual(x.a.value, 'a1')
@@ -201,7 +218,7 @@ class DBRowTestCase(unittest.TestCase):
         self.assertEqual(x.c.value, 'c1')
 
     def test_repr(self):
-        x = _DBRow(parent_schema=None, pk='a b',
+        x = _DBRow(parent_schema=None, table=None, pk='a b',
             value_dict={'a':1, 'b':'1', 'c':'c1'}
         )
         self.assertEqual(repr(x),
@@ -216,22 +233,22 @@ class DBRowTestCase(unittest.TestCase):
 class DBValueTestCase(unittest.TestCase):
 
     def test_value(self):
-        x = _DBValue(parent_schema=None, value='ThisIsValue')
+        x = _DBValue(parent_schema=None, parent_row=None, colname=None, value='ThisIsValue')
         self.assertEqual(x.value, 'ThisIsValue')
 
     def test_repr(self):
-        x = _DBValue(parent_schema=None, value='ThisIsValue')
+        x = _DBValue(parent_schema=None, parent_row=None, colname=None, value='ThisIsValue')
         self.assertEqual(str(x), "_DBValue(None, 'ThisIsValue')")
 
     def test_nonzero(self):
-        x = _DBValue(parent_schema=None, value='ThisIsValue')
+        x = _DBValue(parent_schema=None, parent_row=None, colname=None, value='ThisIsValue')
         # True
-        self.assertTrue(_DBValue(parent_schema=None, value='ThisIsValue'))
-        self.assertTrue(_DBValue(parent_schema=None, value=1))
+        self.assertTrue(_DBValue(parent_schema=None, parent_row=None, colname=None, value='ThisIsValue'))
+        self.assertTrue(_DBValue(parent_schema=None, parent_row=None, colname=None, value=1))
         # False
-        self.assertFalse(_DBValue(parent_schema=None, value=0))
-        self.assertFalse(_DBValue(parent_schema=None, value=None))
-        self.assertFalse(_DBValue(parent_schema=None, value=''))
+        self.assertFalse(_DBValue(parent_schema=None, parent_row=None, colname=None, value=0))
+        self.assertFalse(_DBValue(parent_schema=None, parent_row=None, colname=None, value=None))
+        self.assertFalse(_DBValue(parent_schema=None, parent_row=None, colname=None, value=''))
 
 
 class OtherTestCase(unittest.TestCase):
