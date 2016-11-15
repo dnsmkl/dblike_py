@@ -257,6 +257,7 @@ class OtherTestCase(unittest.TestCase):
         self.assertEqual(_tupleize_cols('1'), tuple(['1']))
         self.assertEqual(_tupleize_cols('a bc'), tuple(['a', 'bc']))
         self.assertEqual(_tupleize_cols(['a', 'bc']), tuple(['a', 'bc']))
+        self.assertEqual(_tupleize_cols(u'a bc'), tuple(['a', 'bc']))
 
 
 def run_tests():

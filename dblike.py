@@ -314,8 +314,20 @@ class _DBValue(object):
 
 
 def _tupleize_cols(cols):
-    """Modules standard preprocessing of column names or values."""
-    return tuple(cols.split()) if isinstance(cols, str) else tuple(cols)
+    """Modules standard preprocessing of column names or values.
+
+    :param cols: should contain columns (either names or values).
+        These can be passed as space delimited string or as iterable.
+    :returns: tuple of columns (either names or values).
+    """
+    try:
+        _basestring = basestring
+    except NameError:
+        _basestring = str # Python 3 compatibility.
+    if isinstance(cols, _basestring):
+        return tuple(cols.split())
+    else:
+        return tuple(cols)
 
 
 def _tupleize_row_id(row_id):
