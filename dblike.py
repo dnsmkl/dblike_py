@@ -5,8 +5,8 @@ In the end it is ORM like interface to some nested dictionaries.
 
 This module provides classes, that loosely correspond to database concepts:
 - DBSchema - dict of tables
-- _DBTable  - dict of rows
-- _DBRow    - dict of values
+- _DBTable - dict of rows
+- _DBRow - dict of values
 - _DBValue
 
 Specific situation, when it can be useful:
@@ -286,7 +286,7 @@ class _DBValue(object):
     def __init__(self, parent_schema, parent_row, colname, value):
         self._schema = parent_schema # needed for deref()
         self._up = parent_row # needed for debugging info.
-        self._colname = colname  # needed for debugging info.
+        self._colname = colname # needed for debugging info.
         self._value = value
 
     def __bool__(self): return bool(self._value)
